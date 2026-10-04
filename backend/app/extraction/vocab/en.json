@@ -1,0 +1,41 @@
+{
+  "language": "en",
+  "types": {
+    "PAYMENT": ["paid back", "repaid", "repay", "payment from", "paid debt", "cleared debt", "balance paid", "settled"],
+    "DEBT": ["owes", "owe", "on credit", "credit", "debt", "unpaid", "took on credit"],
+    "RESTOCK": ["restock", "restocked", "bought stock", "stock in", "new stock", "supply", "supplied", "bought goods"],
+    "EXPENSE": ["expense", "transport", "fare", "rent", "fuel", "spent", "electricity", "levy", "tax", "wages", "salary", "repair", "airtime", "loading", "carriage"],
+    "SALE": ["sold", "sale", "sales", "sell", "cash sale"]
+  },
+  "total_markers": ["total", "sum", "grand total"],
+  "units": ["bag", "bags", "sack", "sacks", "carton", "cartons", "ctn", "crate", "crates", "pcs", "piece", "pieces", "tin", "tins", "kg", "litre", "litres", "liter", "liters", "pack", "packs", "bottle", "bottles", "dozen", "paint", "mudu", "x"],
+  "items": {
+    "Rice": ["rice"],
+    "Sugar": ["sugar"],
+    "Groundnut oil": ["groundnut oil", "oil", "vegetable oil"],
+    "Beans": ["beans"],
+    "Flour": ["flour"],
+    "Spaghetti": ["spaghetti"],
+    "Noodles": ["noodles", "indomie"],
+    "Salt": ["salt"],
+    "Milk": ["milk", "peak milk"],
+    "Soap": ["soap"],
+    "Seasoning": ["maggi", "seasoning"],
+    "Semolina": ["semolina", "semo"],
+    "Tomato paste": ["tomato paste", "tomato"],
+    "Garri": ["garri"],
+    "Maize": ["maize", "corn"]
+  },
+  "expense_categories": {
+    "Transport": ["transport", "fare", "carriage", "loading"],
+    "Rent": ["rent", "shop rent"],
+    "Fuel": ["fuel", "petrol", "diesel"],
+    "Electricity": ["electricity", "light bill", "nepa"],
+    "Levy": ["levy", "tax", "market levy"],
+    "Wages": ["wages", "salary", "boy", "labour"],
+    "Airtime": ["airtime", "data"],
+    "Repairs": ["repair", "repairs"]
+  },
+  "thousand_words": ["thousand"],
+  "stopwords": ["to", "from", "for", "of", "the", "a", "an", "and", "by", "at", "on", "in", "with", "paid", "bought", "today", "cash", "naira", "each"]
+}

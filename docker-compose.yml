@@ -1,0 +1,68 @@
+# Local development stack: MySQL (stands in for Huawei RDS for MySQL),
+# Redis (stands in for Huawei DCS), the FastAPI backend and the nginx-served
+# frontend. Uploaded files use the local volume (OBS in production).
+#
+#   docker compose up --build      ->  http://localhost:8080
+
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: notebookos
+      MYSQL_USER: notebookos
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-notebookos_dev_only}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_dev_only}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_dev_only}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      APP_ENV: development
+      DATABASE_URL: mysql+pymysql://notebookos:${MYSQL_PASSWORD:-notebookos_dev_only}@db:3306/notebookos?charset=utf8mb4
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_BACKEND: local
+      LOCAL_STORAGE_DIR: /app/data/uploads
+      PUBLIC_BASE_URL: http://localhost:8080
+      CORS_ORIGINS: http://localhost:8080
+      DEMO_MODE: "true"
+      OTP_DEV_ECHO: "true"
+      OCR_PROVIDER: ${OCR_PROVIDER:-demo}
+      SPEECH_PROVIDER: ${SPEECH_PROVIDER:-demo}
+      LLM_PROVIDER: ${LLM_PROVIDER:-rules}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+    volumes:
+      - uploads:/app/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
+  uploads:

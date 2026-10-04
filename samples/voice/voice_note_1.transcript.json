@@ -1,0 +1,12 @@
+{
+  "sha256": "",
+  "source_file": "voice_note_1.wav",
+  "title": "Voice note — three transactions (English, synthetic voice)",
+  "note": "Pre-recorded demo transcript of a fictional, synthesised voice note. Used only by the offline demo speech provider.",
+  "confidence": 0.9,
+  "transcript": [
+    "Sold 2 cartons spaghetti 16,000 naira",
+    "Bello took sugar on credit 7,500",
+    "Paid transport 1,500"
+  ]
+}

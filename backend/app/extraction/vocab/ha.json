@@ -1,0 +1,38 @@
+{
+  "language": "ha",
+  "types": {
+    "PAYMENT": ["ya biya", "ta biya", "sun biya", "an biya", "biya bashi", "biyan bashi", "biya", "ya kawo kudi", "ta kawo kudi"],
+    "DEBT": ["bashi", "bashin", "ya ci bashi", "ta ci bashi", "ya karba bashi", "ta karba bashi", "ranta", "aro"],
+    "RESTOCK": ["sayo kaya", "sabon kaya", "kaya sun zo", "an kawo kaya", "sayo", "kaya"],
+    "EXPENSE": ["kashe", "kudin mota", "kudin haya", "haya", "kudin wuta", "kudin mai", "albashi", "kudin kasuwa", "gyara", "kudin loda", "kudin dako"],
+    "SALE": ["sayar", "an sayar", "na sayar", "sayarwa", "saida", "ciniki"]
+  },
+  "total_markers": ["jimla", "jumla", "jimilla", "jimlar"],
+  "units": ["buhu", "kwali", "kwalaye", "mudu", "tiya", "kwalba", "gwangwani", "kilo", "galan", "jaka"],
+  "items": {
+    "Rice": ["shinkafa"],
+    "Sugar": ["sukari", "suga"],
+    "Groundnut oil": ["mai", "man gyada"],
+    "Beans": ["wake"],
+    "Flour": ["fulawa", "filawa"],
+    "Spaghetti": ["taliya"],
+    "Salt": ["gishiri"],
+    "Milk": ["madara"],
+    "Soap": ["sabulu"],
+    "Maize": ["masara"],
+    "Millet": ["gero"],
+    "Sorghum": ["dawa"],
+    "Garri": ["gari"]
+  },
+  "expense_categories": {
+    "Transport": ["kudin mota", "mota", "kudin dako", "dako", "kudin loda", "loda"],
+    "Rent": ["haya", "kudin haya"],
+    "Electricity": ["kudin wuta", "wuta"],
+    "Fuel": ["kudin mai"],
+    "Levy": ["kudin kasuwa", "haraji"],
+    "Wages": ["albashi", "yaro"],
+    "Repairs": ["gyara"]
+  },
+  "thousand_words": ["dubu"],
+  "stopwords": ["ya", "ta", "sun", "an", "na", "da", "ga", "a", "zuwa", "daga", "kudi", "kudin", "yau", "naira", "kowane"]
+}
