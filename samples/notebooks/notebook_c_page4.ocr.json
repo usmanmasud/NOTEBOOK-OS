@@ -1,0 +1,74 @@
+{
+  "sha256": "c42a4e2b28d970c1373abdb73896e0cb090f0f574bc9ff0a95ba5b13fa1f6a3a",
+  "source_file": "notebook_c_page4.png",
+  "note": "Pre-recorded demo reading of a fictional sample page. Used only by the offline demo OCR provider.",
+  "pages": [
+    {
+      "page_number": 4,
+      "width": 1240,
+      "height": 1600,
+      "lines": [
+        {
+          "text": "24/9/26",
+          "confidence": 0.96,
+          "bbox": {
+            "x": 0.1137,
+            "y": 0.1369,
+            "width": 0.1782,
+            "height": 0.0406
+          }
+        },
+        {
+          "text": "Sold 4 bags rice 60,000",
+          "confidence": 0.94,
+          "bbox": {
+            "x": 0.1226,
+            "y": 0.1938,
+            "width": 0.4226,
+            "height": 0.0475
+          }
+        },
+        {
+          "text": "Ibrahim sukari 1 buhu 15k bashi",
+          "confidence": 0.9,
+          "bbox": {
+            "x": 0.1081,
+            "y": 0.2544,
+            "width": 0.5798,
+            "height": 0.0394
+          }
+        },
+        {
+          "text": "Halima mai 1 galan 6k bashi",
+          "confidence": 0.89,
+          "bbox": {
+            "x": 0.1202,
+            "y": 0.3038,
+            "width": 0.496,
+            "height": 0.0494
+          }
+        },
+        {
+          "text": "Kudin haya shago 25,000",
+          "confidence": 0.91,
+          "bbox": {
+            "x": 0.1065,
+            "y": 0.3669,
+            "width": 0.4556,
+            "height": 0.0475
+          }
+        },
+        {
+          "text": "Sold 3 bags sugar 54k",
+          "confidence": 0.93,
+          "bbox": {
+            "x": 0.1234,
+            "y": 0.4181,
+            "width": 0.4089,
+            "height": 0.0475
+          }
+        }
+      ]
+    }
+  ]
+}

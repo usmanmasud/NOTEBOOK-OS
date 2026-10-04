@@ -1,0 +1,84 @@
+{
+  "sha256": "9b32ab2d5963d021dfc71b08a5ca94b1fcd2c37c3e6a8433a090feae978c0b06",
+  "source_file": "notebook_a_page2.png",
+  "note": "Pre-recorded demo reading of a fictional sample page. Used only by the offline demo OCR provider.",
+  "pages": [
+    {
+      "page_number": 2,
+      "width": 1240,
+      "height": 1600,
+      "lines": [
+        {
+          "text": "1/10/26",
+          "confidence": 0.97,
+          "bbox": {
+            "x": 0.1137,
+            "y": 0.1331,
+            "width": 0.1556,
+            "height": 0.0406
+          }
+        },
+        {
+          "text": "Sold 3 bags rice 45,000",
+          "confidence": 0.93,
+          "bbox": {
+            "x": 0.1073,
+            "y": 0.1944,
+            "width": 0.4266,
+            "height": 0.0475
+          }
+        },
+        {
+          "text": "Sold 2 tins oil 18,000",
+          "confidence": 0.92,
+          "bbox": {
+            "x": 0.1089,
+            "y": 0.2494,
+            "width": 0.3815,
+            "height": 0.0406
+          }
+        },
+        {
+          "text": "Musa shinkafa 2? 20k bashi",
+          "confidence": 0.61,
+          "bbox": {
+            "x": 0.1169,
+            "y": 0.3106,
+            "width": 0.4944,
+            "height": 0.04
+          }
+        },
+        {
+          "text": "Kudin mota 2,500",
+          "confidence": 0.9,
+          "bbox": {
+            "x": 0.1097,
+            "y": 0.3656,
+            "width": 0.3258,
+            "height": 0.0406
+          }
+        },
+        {
+          "text": "Sayo kaya sukari 5 buhu 150k",
+          "confidence": 0.88,
+          "bbox": {
+            "x": 0.1226,
+            "y": 0.42,
+            "width": 0.5298,
+            "height": 0.0425
+          }
+        },
+        {
+          "text": "Total sales 63,000",
+          "confidence": 0.95,
+          "bbox": {
+            "x": 0.1177,
+            "y": 0.485,
+            "width": 0.3492,
+            "height": 0.0387
+          }
+        }
+      ]
+    }
+  ]
+}

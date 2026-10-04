@@ -1,0 +1,74 @@
+{
+  "sha256": "8771ddb81f438cff59c601f9d11be8578d293a0c627120df5df4fa06f2347e02",
+  "source_file": "notebook_c_page5.png",
+  "note": "Pre-recorded demo reading of a fictional sample page. Used only by the offline demo OCR provider.",
+  "pages": [
+    {
+      "page_number": 5,
+      "width": 1240,
+      "height": 1600,
+      "lines": [
+        {
+          "text": "26/9/26",
+          "confidence": 0.96,
+          "bbox": {
+            "x": 0.1073,
+            "y": 0.1375,
+            "width": 0.1734,
+            "height": 0.0406
+          }
+        },
+        {
+          "text": "Ibrahim ya biya 15k",
+          "confidence": 0.92,
+          "bbox": {
+            "x": 0.1202,
+            "y": 0.1963,
+            "width": 0.3645,
+            "height": 0.0425
+          }
+        },
+        {
+          "text": "Aisha shinkafa 1 buhu 20k bashi",
+          "confidence": 0.9,
+          "bbox": {
+            "x": 0.1242,
+            "y": 0.2506,
+            "width": 0.5839,
+            "height": 0.04
+          }
+        },
+        {
+          "text": "Halima ta biya 6,000",
+          "confidence": 0.91,
+          "bbox": {
+            "x": 0.1161,
+            "y": 0.3075,
+            "width": 0.3806,
+            "height": 0.0456
+          }
+        },
+        {
+          "text": "Sold 2 bags beans 30,000",
+          "confidence": 0.93,
+          "bbox": {
+            "x": 0.1242,
+            "y": 0.3675,
+            "width": 0.4653,
+            "height": 0.0475
+          }
+        },
+        {
+          "text": "Sayo kaya shinkafa 10 buhu 140k",
+          "confidence": 0.88,
+          "bbox": {
+            "x": 0.121,
+            "y": 0.4219,
+            "width": 0.5968,
+            "height": 0.0425
+          }
+        }
+      ]
+    }
+  ]
+}

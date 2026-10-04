@@ -156,7 +156,7 @@ class RuleBasedInterpreter:
             conf["date"] = 0.7 if found_date.year_inferred else 0.9
         elif header_date:
             fields["date"] = header_date.value
-            conf["date"] = 0.65 if header_date.year_inferred else 0.8
+            conf["date"] = 0.7 if header_date.year_inferred else 0.88
 
         if unclear:
             fields["notes"] = "Unclear in notebook: " + ", ".join(unclear)

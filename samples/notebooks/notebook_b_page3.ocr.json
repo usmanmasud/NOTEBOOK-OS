@@ -1,0 +1,74 @@
+{
+  "sha256": "0a2d17da512feaf13bfb9600d2a0c6e6fb9ad605decdc6e72d5ac2e2d7e4f096",
+  "source_file": "notebook_b_page3.png",
+  "note": "Pre-recorded demo reading of a fictional sample page. Used only by the offline demo OCR provider.",
+  "pages": [
+    {
+      "page_number": 3,
+      "width": 1240,
+      "height": 1600,
+      "lines": [
+        {
+          "text": "Talata 2/10",
+          "confidence": 0.86,
+          "bbox": {
+            "x": 0.1113,
+            "y": 0.1331,
+            "width": 0.2508,
+            "height": 0.0431
+          }
+        },
+        {
+          "text": "an sayar wake mudu 4 6,400",
+          "confidence": 0.8,
+          "bbox": {
+            "x": 0.1282,
+            "y": 0.1875,
+            "width": 0.5774,
+            "height": 0.0462
+          }
+        },
+        {
+          "text": "Halima taliya kwali 1 bashi 8,5OO",
+          "confidence": 0.7,
+          "bbox": {
+            "x": 0.1105,
+            "y": 0.2487,
+            "width": 0.6411,
+            "height": 0.0488
+          }
+        },
+        {
+          "text": "kashe kudin wuta 3k",
+          "confidence": 0.84,
+          "bbox": {
+            "x": 0.1379,
+            "y": 0.3044,
+            "width": 0.4097,
+            "height": 0.0431
+          }
+        },
+        {
+          "text": "sayar gishiri ?,000",
+          "confidence": 0.55,
+          "bbox": {
+            "x": 0.1097,
+            "y": 0.3688,
+            "width": 0.3742,
+            "height": 0.0481
+          }
+        },
+        {
+          "text": "Jimla 9,400",
+          "confidence": 0.82,
+          "bbox": {
+            "x": 0.1339,
+            "y": 0.425,
+            "width": 0.246,
+            "height": 0.0413
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "note": "All sample data is fictional. Any resemblance to real people or businesses is coincidental.",
+  "samples": [
+    {
+      "id": "notebook-a-page2",
+      "type": "PHOTO",
+      "title": "Notebook A — page 2 (sales, debt, expense, restock)",
+      "file": "notebooks/notebook_a_page2.png",
+      "mime_type": "image/png"
+    },
+    {
+      "id": "notebook-b-page3",
+      "type": "PHOTO",
+      "title": "Notebook B — page 3 (messy, mixed Hausa/English, unclear amounts)",
+      "file": "notebooks/notebook_b_page3.png",
+      "mime_type": "image/png"
+    },
+    {
+      "id": "notebook-c-page4",
+      "type": "PHOTO",
+      "title": "Notebook C — page 4 (several customers on credit)",
+      "file": "notebooks/notebook_c_page4.png",
+      "mime_type": "image/png"
+    },
+    {
+      "id": "notebook-c-page5",
+      "type": "PHOTO",
+      "title": "Notebook C — page 5 (repeat customers, repayments)",
+      "file": "notebooks/notebook_c_page5.png",
+      "mime_type": "image/png"
+    },
+    {
+      "id": "voice-note-1",
+      "type": "VOICE",
+      "title": "Voice note — three transactions (English, synthetic voice)",
+      "file": "voice/voice_note_1.wav",
+      "mime_type": "audio/wav"
+    }
+  ]
+}

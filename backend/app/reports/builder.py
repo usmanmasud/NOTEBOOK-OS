@@ -57,9 +57,9 @@ def template_narrative(m: Metrics, currency: str) -> str:
     if len(m.trend) >= 2:
         first, last = m.trend[0]["sales"], m.trend[-1]["sales"]
         if last > first:
-            parts.append(f"Sales in the latest {m.trend_granularity} were higher than in the first.")
+            parts.append(f"Sales in the most recent {m.trend_granularity} recorded were higher than in the first.")
         elif last < first:
-            parts.append(f"Sales in the latest {m.trend_granularity} were lower than in the first.")
+            parts.append(f"Sales in the most recent {m.trend_granularity} recorded were lower than in the first.")
     return " ".join(parts)
 
 
@@ -147,6 +147,9 @@ def build_snapshot(user: User, records: list[Record], start: date | None, end: d
             "typed_entries": sum(1 for u in uploads.values() if u.type == UploadType.TEXT),
             "records_corrected_by_trader": sum(1 for r in period_records if r.edited),
             "records_entered_manually": sum(1 for r in period_records if r.ai_original is None),
+            "records_preloaded_demo_history": sum(
+                1 for r in period_records if (r.upload.pipeline_info or {}).get("seeded_demo_history")
+            ),
         },
         "narrative": llm_narrative(m, s.currency, narrative),
         "evidence_statement": EVIDENCE_STATEMENT,

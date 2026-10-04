@@ -33,6 +33,8 @@ def provenance(record: Record) -> dict:
         "read_by": (upload.pipeline_info or {}).get("read_provider") if upload else None,
         "read_is_demo_fixture": (upload.pipeline_info or {}).get("read_is_demo_fixture", False) if upload else False,
         "interpreted_by": (upload.pipeline_info or {}).get("interpreter") if upload else None,
+        # Confirmed by the demo seeding script rather than by a person.
+        "seeded_demo_history": bool((upload.pipeline_info or {}).get("seeded_demo_history")) if upload else False,
     }
 
 

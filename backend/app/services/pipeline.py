@@ -37,7 +37,8 @@ def _read(upload: Upload) -> ReadResult:
     return registry.transcribe(data, upload.mime_type or "")
 
 
-def run_pipeline(db: Session, upload: Upload) -> None:
+def run_pipeline(db: Session, upload: Upload, read: ReadResult | None = None) -> None:
+    """Process an upload. `read` lets callers (demo seeding) supply the READ result."""
     settings = get_settings()
     upload.status = UploadStatus.PROCESSING
     upload.error_message = None
@@ -45,7 +46,7 @@ def run_pipeline(db: Session, upload: Upload) -> None:
     log_event("processing_started", upload_id=upload.id, type=upload.type.value)
 
     # ---- READ ------------------------------------------------------------------
-    read = _read(upload)
+    read = read or _read(upload)
     log_event(
         "ocr_completed" if upload.type == UploadType.PHOTO else "read_completed",
         upload_id=upload.id,

@@ -49,7 +49,7 @@ def _to_decimal(num: str) -> tuple[Decimal | None, bool]:
 
 def spaced(text: str) -> str:
     """Separate digits from attached unit words: "20kg" -> "20 kg", "3x" -> "3 x"."""
-    text = re.sub(r"(\d)([A-Za-z]{2,})", r"\1 \2", text)
+    text = re.sub(r"(\d)(?![OolIS]+\b)([A-Za-z]{2,})", r"\1 \2", text)
     return re.sub(r"(\d)[xX]\b", r"\1 x", text)
 
 
@@ -102,6 +102,10 @@ def find_numbers(text: str, units: set[str], thousand_words: set[str]) -> list[N
                 unit = prev_word
 
         is_money = bool(m.group("cur") or suffix or thousand) or (unit is None and value >= 100)
+        # "?,000": the leading digits are illegible, so this is an unclear amount.
+        lead = re.search(r"\?[,.]?$", text[:start])
+        if lead:
+            start, uncertain, is_money = lead.start(), True, True
         tokens.append(
             NumberToken(
                 value=value,
@@ -111,7 +115,7 @@ def find_numbers(text: str, units: set[str], thousand_words: set[str]) -> list[N
                 is_money=is_money,
                 uncertain=uncertain,
                 unit=unit,
-                explicit=bool(m.group("cur") or suffix or thousand),
+                explicit=bool(m.group("cur") or suffix or thousand or re.search(r"\d[,.]\d{3}$", m.group("num"))),
             )
         )
     return tokens

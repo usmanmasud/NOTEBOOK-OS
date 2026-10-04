@@ -29,7 +29,9 @@ services:
       retries: 10
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     environment:
       APP_ENV: development
       DATABASE_URL: mysql+pymysql://notebookos:${MYSQL_PASSWORD:-notebookos_dev_only}@db:3306/notebookos?charset=utf8mb4

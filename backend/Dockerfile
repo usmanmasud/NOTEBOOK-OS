@@ -1,12 +1,15 @@
+# Build context: repository root (needs backend/ and the fictional samples/).
 FROM python:3.12-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 \
+    SAMPLES_DIR=/app/samples LOCAL_STORAGE_DIR=/app/data/uploads
 WORKDIR /app
 
-COPY requirements.txt requirements-cloud.txt ./
+COPY backend/requirements.txt backend/requirements-cloud.txt ./
 RUN pip install -r requirements-cloud.txt
 
-COPY . .
+COPY backend/ .
+COPY samples/ /app/samples/
 RUN useradd --create-home --uid 10001 notebookos \
     && mkdir -p /app/data/uploads && chown -R notebookos /app/data
 USER notebookos
