@@ -22,3 +22,4 @@ Thumbs.db
 
 # Local logs
 *.log
+deploy/.env.production
