@@ -1,0 +1,39 @@
+# Render Blueprint for the NotebookOS API (Render dashboard → New → Blueprint → this repo).
+#
+# Interim hosting: SQLite + in-process sessions inside the container (ALLOW_EPHEMERAL=true),
+# so data resets whenever Render restarts or redeploys the service. The fictional demo
+# account is re-seeded on every start. Replace DATABASE_URL/REDIS_URL with managed
+# services (e.g. Huawei RDS / DCS) for persistent data.
+services:
+  - type: web
+    name: notebookos-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: ALLOW_EPHEMERAL
+        value: "true"
+      - key: WEB_CONCURRENCY
+        value: "1"           # in-process sessions require a single worker
+      - key: PORT
+        value: "8000"
+      - key: DEMO_MODE
+        value: "true"
+      - key: OTP_DEV_ECHO
+        value: "false"
+      - key: OCR_PROVIDER
+        value: demo
+      - key: SPEECH_PROVIDER
+        value: demo
+      - key: LLM_PROVIDER
+        value: rules
+      # Set these two to your Vercel URL after the frontend is deployed:
+      - key: CORS_ORIGINS
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false

@@ -57,6 +57,10 @@ class Settings(BaseSettings):
     otp_dev_echo: bool = False
     sms_provider: Literal["console", "none"] = "none"
 
+    # Allow SQLite + in-process sessions in production: only for a single-instance
+    # demo host whose data may reset (e.g. a free Render service). Never for real users.
+    allow_ephemeral: bool = False
+
     # --- Demo mode -------------------------------------------------------------
     demo_mode: bool = True
     demo_phone: str = "+0000000000"
@@ -140,10 +144,11 @@ class Settings(BaseSettings):
         problems = []
         if self.otp_dev_echo:
             problems.append("OTP_DEV_ECHO must be false in production")
-        if self.database_url.startswith("sqlite"):
-            problems.append("DATABASE_URL must point at RDS MySQL in production")
-        if not self.redis_url:
-            problems.append("REDIS_URL must be set in production (Huawei DCS)")
+        if not self.allow_ephemeral:
+            if self.database_url.startswith("sqlite"):
+                problems.append("DATABASE_URL must point at RDS MySQL in production")
+            if not self.redis_url:
+                problems.append("REDIS_URL must be set in production (Huawei DCS)")
         if self.storage_backend == "obs" and not (self.obs_bucket and self.obs_endpoint):
             problems.append("OBS_BUCKET and OBS_ENDPOINT are required when STORAGE_BACKEND=obs")
         return problems

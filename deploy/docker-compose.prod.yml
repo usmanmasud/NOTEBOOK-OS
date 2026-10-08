@@ -1,12 +1,12 @@
 # Production on a Huawei Cloud ECS instance.
-# Data services are managed Huawei Cloud services reached over the VPC:
-#   RDS for MySQL (DATABASE_URL), DCS for Redis (REDIS_URL), OBS (STORAGE_BACKEND=obs).
 #
-#   cp deploy/env.production.example deploy/.env.production   # fill in values
+#   ECS  : runs this file (frontend/nginx, backend/FastAPI, Redis, Caddy for HTTPS)
+#   RDS  : Huawei Cloud RDS for MySQL, reached over the VPC (DATABASE_URL)
+#   Files: notebook photos on the ECS disk (volume `uploads`), or OBS with STORAGE_BACKEND=obs
+#   Redis: container below by default; point REDIS_URL at Huawei DCS to use the managed service
+#
+#   sh deploy/ecs-setup.sh            # first time (installs Docker, creates deploy/.env.production)
 #   docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.production up -d --build
-#
-# HTTPS: either put a Huawei ELB with an HTTPS listener in front of port 8080
-# (recommended), or start the optional Caddy proxy:  --profile caddy
 
 services:
   backend:
@@ -19,6 +19,10 @@ services:
       APP_ENV: production
       OTP_DEV_ECHO: "false"
       WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
+    volumes:
+      - uploads:/app/data/uploads
+    depends_on:
+      - redis
     expose:
       - "8000"
     logging:
@@ -30,15 +34,22 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
-    ports:
-      # Only the ELB (or Caddy) should reach this; restrict with the ECS security group.
-      - "8080:8080"
+    expose:
+      - "8080"
     logging:
       driver: json-file
       options: { max-size: "20m", max-file: "5" }
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
+  # Public entry point: HTTPS with an automatic Let's Encrypt certificate.
+  # DOMAIN can be a free sslip.io name for the ECS public IP, e.g. 1-2-3-4.sslip.io
   caddy:
-    profiles: ["caddy"]
     image: caddy:2-alpine
     restart: unless-stopped
     depends_on:
@@ -47,10 +58,12 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      DOMAIN: ${DOMAIN:?set DOMAIN for automatic HTTPS}
+      DOMAIN: ${DOMAIN:?set DOMAIN in deploy/.env.production}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
 
 volumes:
+  uploads:
+  redis_data:
   caddy_data:

@@ -38,6 +38,14 @@ def test_production_refuses_unsafe_config():
     assert len(problems) == 3
 
 
+def test_ephemeral_hosting_is_an_explicit_opt_in():
+    base = dict(app_env="production", otp_dev_echo=False, database_url="sqlite:///x.db", redis_url="")
+    assert len(Settings(**base).validate_for_production()) == 2
+    assert Settings(**base, allow_ephemeral=True).validate_for_production() == []
+    # Never relaxes the OTP rule.
+    assert Settings(**{**base, "otp_dev_echo": True}, allow_ephemeral=True).validate_for_production()
+
+
 def test_confidence_thresholds_are_configurable():
     s = Settings(confidence_high=0.9, confidence_review=0.5)
     assert confidence_level(0.89, s) == "review"

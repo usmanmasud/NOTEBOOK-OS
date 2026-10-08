@@ -14,6 +14,12 @@ import type {
 
 const TOKEN_KEY = "notebookos.session";
 
+/**
+ * Where the API lives. Empty (default) = same origin, as behind nginx or the Vite proxy.
+ * Set VITE_API_BASE (e.g. https://notebookos-api.onrender.com) when the API is hosted separately.
+ */
+const API = `${(import.meta.env.VITE_API_BASE ?? "").replace(/\/+$/, "")}/api`;
+
 export const session = {
   get(): string | null {
     try {
@@ -59,7 +65,7 @@ async function request<T>(path: string, init: RequestInit = {}, auth = true): Pr
 
   let response: Response;
   try {
-    response = await fetch(`/api${path}`, { ...init, headers });
+    response = await fetch(`${API}${path}`, { ...init, headers });
   } catch {
     throw new ApiError(0, "Can't reach NotebookOS. Check your connection and try again.");
   }
@@ -124,7 +130,7 @@ export const api = {
     request<{ deleted: boolean; records_removed: number }>(`/uploads/${id}`, { method: "DELETE" }),
   async uploadFileBlob(id: string): Promise<Blob> {
     const token = session.get();
-    const r = await fetch(`/api/uploads/${id}/file`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    const r = await fetch(`${API}/uploads/${id}/file`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     if (!r.ok) throw new ApiError(r.status, "The original file is not available.");
     return r.blob();
   },
@@ -147,7 +153,7 @@ export const api = {
 
   samples: () => request<Sample[]>("/demo/samples", {}, false),
   async sampleFile(id: string): Promise<Blob> {
-    const r = await fetch(`/api/demo/samples/${id}/file`);
+    const r = await fetch(`${API}/demo/samples/${id}/file`);
     if (!r.ok) throw new ApiError(r.status, "Sample not available.");
     return r.blob();
   },

@@ -5,29 +5,43 @@
 > Huawei Cloud account has **not** been performed yet. Record the outcome (URL and date)
 > here once it has.
 
-## Target architecture
+## Target architecture (what we deploy)
 
 ```
-Internet ──HTTPS──▶ ELB (public) ──HTTP:8080──▶ ECS (private subnet)
-                                                 ├─ frontend (nginx: React app, /api proxy)
-                                                 └─ backend (FastAPI, uvicorn)
-                                                       ├─▶ RDS for MySQL   (private subnet, 3306)
-                                                       ├─▶ DCS for Redis   (private subnet, 6379)
-                                                       ├─▶ OBS bucket      (private, S3-compatible API)
-                                                       └─▶ Huawei OCR / SIS / LLM endpoint (HTTPS)
+Internet ──HTTPS :443──▶ ECS (public EIP, security group: 80/443)
+                          ├─ caddy     (HTTPS, automatic certificate; <ip>.sslip.io works without a domain)
+                          ├─ frontend  (nginx: React app, /api proxy)
+                          ├─ backend   (FastAPI, uvicorn)  ──VPC :3306──▶ RDS for MySQL (no public IP)
+                          ├─ redis     (sessions, OTP, rate limits)
+                          └─ uploads volume (notebook photos)
 ```
 
-Choose one region for everything (for example `ap-southeast-1` or `af-south-1`) so the
-ECS reaches RDS and DCS over the VPC.
+This is the compliant core: **the web app and API run on Huawei Cloud ECS and all
+business data lives in Huawei Cloud RDS for MySQL.** Redis and photo storage run on the
+ECS to keep setup short. Each can move to a managed service later without code changes
+(`REDIS_URL` → DCS, `STORAGE_BACKEND=obs` → OBS); see sections 3–4.
+
+**Quick path** (details in the numbered sections below):
+1. VPC + security groups (section 1).
+2. RDS for MySQL in the same VPC; database `notebookos` + user `notebookos` (section 2).
+3. ECS (Ubuntu 22.04, 2 vCPU / 4 GB, with an EIP) in the same VPC, then on the ECS:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/usmanmasud/NOTEBOOK-OS/main/deploy/ecs-setup.sh | sudo sh
+   sudo nano /opt/notebookos/deploy/.env.production   # DOMAIN, PUBLIC_BASE_URL, CORS_ORIGINS, DATABASE_URL
+   sudo sh /opt/notebookos/deploy/start.sh
+   ```
+4. Open `https://<ip-with-dashes>.sslip.io` and run the demo.
 
 ## 1. Networking (VPC)
 
 1. Create a **VPC** (for example `10.0.0.0/16`) with two subnets: `app` (ECS) and
    `data` (RDS, DCS).
 2. Create security groups:
-   * `sg-elb`: inbound 443 (and 80 for redirect) from `0.0.0.0/0`.
-   * `sg-app` (ECS): inbound **8080 from `sg-elb` only**, and 22 from your admin IP only.
-   * `sg-data` (RDS/DCS): inbound **3306 and 6379 from `sg-app` only**. No public IPs.
+   * `sg-notebookos-web` (ECS): inbound 80 and 443 from anywhere; 22 only while you set up
+     (or use the console's remote login).
+   * `sg-notebookos-data` (RDS, and DCS if used): inbound **3306 (and 6379) from
+     `sg-notebookos-web` only**. No public IPs.
+   * (If you use an ELB instead of Caddy, the ECS only needs 8080 from the ELB.)
 3. The ECS needs outbound internet (EIP or NAT gateway) to pull images and call the
    OCR/SIS/OBS endpoints.
 
@@ -87,9 +101,9 @@ fail, the app falls back automatically, and the demo samples still work offline.
    chmod 600 deploy/.env.production      # holds secrets; never commit it
    vi deploy/.env.production
    ```
-4. Build and start:
+4. Build and start (also re-run this to deploy updates; it pulls the latest code):
    ```bash
-   docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.production up -d --build
+   sudo sh /opt/notebookos/deploy/start.sh
    ```
    With `APP_ENV=production`, the backend **refuses to start** if `OTP_DEV_ECHO` is on,
    the database is SQLite, or `REDIS_URL` is missing.
