@@ -6,7 +6,11 @@ NotebookOS turns a trader's handwritten notebook page or voice note into structu
 searchable business records. Every number on the dashboard can be traced back to the
 line in the notebook it came from, and nothing becomes official until the trader confirms it.
 
-Built for the Huawei Cloud Innovation Competition (hackathon MVP).
+Built for the Huawei ICT Competition, Innovation track (hackathon MVP).
+
+**Live demo:** https://notebook-os-xi.vercel.app. Choose *Open the demo account*.
+All data is fictional. The backend runs on a free tier: the first visit after a quiet
+period can take about a minute to wake it up.
 
 ---
 
@@ -169,8 +173,15 @@ none is available, the app says so and offers manual entry.
 
 ## Deployment
 
-See [docs/deployment.md](docs/deployment.md) for Huawei Cloud ECS, RDS for MySQL,
-DCS for Redis, OBS, networking, HTTPS, migrations, and health checks.
+**Current (interim):** the frontend is on **Vercel** (`frontend/vercel.json`, with
+`VITE_API_BASE` set to the API URL), and the API is on **Render** (`render.yaml`,
+Docker). It runs with SQLite and in-process sessions (`ALLOW_EPHEMERAL=true`), so data
+resets whenever Render restarts. The fictional demo account is re-seeded on every
+start.
+
+**Target:** Huawei Cloud. The web app and API run on ECS, with data in RDS for MySQL and
+AI on ModelArts + OCR. See [docs/deployment.md](docs/deployment.md) for ECS, RDS, DCS,
+OBS, networking, HTTPS, migrations, and health checks.
 
 ## Status: what is and isn't verified
 
@@ -182,7 +193,9 @@ DCS for Redis, OBS, networking, HTTPS, migrations, and health checks.
 | Huawei Cloud OCR, SIS, IAM providers | Implemented against the documented APIs and tested with mocked responses only. **Not yet tested against live Huawei services.** |
 | OpenAI-compatible LLM provider | Tested with a mocked HTTP endpoint only |
 | Huawei OBS storage | Implemented via the S3-compatible API; **not yet tested against a live bucket** |
+| Live deployment | Running on Vercel (frontend) + Render (API). The full demo flow was verified in a browser against the live site. Data is not persistent yet. |
 | Deployment to Huawei Cloud | Configuration and runbook provided; **not yet deployed** |
+| Huawei ModelArts (required by the competition) | **Not integrated yet.** The LLM step already accepts an OpenAI-compatible endpoint such as ModelArts MaaS, but it has not been configured or tested. |
 | SMS delivery for OTP | **Not implemented.** The OTP architecture is in place, but production needs an SMS gateway plugged in (see docs/security.md). |
 | Hausa UI labels | Partial, and need review by a native speaker |
 
