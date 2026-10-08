@@ -29,11 +29,16 @@ export function Review() {
       try {
         const u = await api.upload(id);
         if (stop) return;
-        setUpload(u);
         if (ACTIVE.includes(u.status)) {
+          setUpload(u);
           timer = setTimeout(tick, 900);
         } else {
-          setRecords(await api.uploadRecords(id));
+          // Load the records before leaving the "Reading…" screen, so a slow
+          // connection never shows a half-loaded page ("No transactions found").
+          const rs = await api.uploadRecords(id);
+          if (stop) return;
+          setRecords(rs);
+          setUpload(u);
         }
       } catch (e) {
         if (!stop) setError(e instanceof ApiError ? e.message : "Could not load this upload.");
