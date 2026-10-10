@@ -91,6 +91,8 @@ class Settings(BaseSettings):
     llm_api_key: str = ""
     llm_model: str = ""
     llm_timeout_seconds: float = 45.0
+    # Ask the endpoint for JSON mode (response_format). Turn off for models that reject it.
+    llm_json_mode: bool = True
 
     # Huawei Cloud OCR / SIS (token auth via IAM).
     huawei_region: str = "ap-southeast-1"

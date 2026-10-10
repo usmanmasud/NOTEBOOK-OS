@@ -99,10 +99,14 @@ def build_user_prompt(lines: list[SourceLine], reference: date, date_order: str)
 
 
 def parse_llm_output(raw: str) -> LLMOutput:
-    text = raw.strip()
+    # Reasoning models (e.g. DeepSeek-R1 on ModelArts) may prepend a <think> block.
+    text = re.sub(r"<think>.*?</think>", "", raw, flags=re.S).strip()
     fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", text, re.S)
     if fence:
         text = fence.group(1)
+    elif not text.startswith("{") and "{" in text and "}" in text:
+        # Tolerate a short preamble/epilogue around the JSON object.
+        text = text[text.index("{") : text.rindex("}") + 1]
     try:
         data = json.loads(text)
     except json.JSONDecodeError as exc:

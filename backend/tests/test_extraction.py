@@ -140,6 +140,12 @@ def test_llm_malformed_output_is_rejected(raw):
         parse_llm_output(raw)
 
 
+def test_llm_output_with_reasoning_and_preamble():
+    payload = '{"records": [{"line_id": "p2:L0", "type": "SALE", "amount": 45000, "confidence": 0.9}]}'
+    parsed = parse_llm_output("<think>The line says sold rice.</think>\nHere is the JSON:\n" + payload + "\nDone.")
+    assert parsed.records[0].amount == 45000
+
+
 def test_llm_records_must_reference_real_lines():
     llm = FakeLLM({"records": [
         {"line_id": "p2:L0", "type": "SALE", "amount": 45000, "confidence": 0.9},

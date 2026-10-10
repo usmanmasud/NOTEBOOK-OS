@@ -28,9 +28,10 @@ class OpenAICompatibleLLMProvider:
         body = {
             "model": self.model,
             "temperature": 0,
-            "response_format": {"type": "json_object"},
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
         }
+        if get_settings().llm_json_mode:
+            body["response_format"] = {"type": "json_object"}
         headers = {"Authorization": f"Bearer {self.api_key}"} if self.api_key else {}
         try:
             resp = self.client.post(f"{self.base_url}/chat/completions", json=body, headers=headers)
