@@ -6,6 +6,7 @@ import { I18nProvider } from "./i18n";
 import { Capture } from "./pages/Capture";
 import { Dashboard } from "./pages/Dashboard";
 import { MetricEvidence, RecordEvidence } from "./pages/Evidence";
+import { Landing } from "./pages/Landing";
 import { Records } from "./pages/Records";
 import { PublicReport, Reports } from "./pages/Reports";
 import { Review } from "./pages/Review";
@@ -19,7 +20,10 @@ function Routed() {
       {/* Public, read-only shared report: no login required. */}
       <Route path="/reports/:token" element={<PublicReport />} />
       {!user ? (
-        <Route path="*" element={<SignIn />} />
+        <>
+          <Route index element={<Landing />} />
+          <Route path="*" element={<SignIn />} />
+        </>
       ) : (
         <Route element={<Layout />}>
           <Route index element={<Capture />} />

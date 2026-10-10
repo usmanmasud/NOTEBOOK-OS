@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { BrandMark } from "../components/Layout";
 import { Notice } from "../components/ui";
 import { useApp } from "../hooks/useApp";
@@ -51,10 +52,10 @@ export function SignIn() {
   return (
     <div className="main">
       <div className="signin">
-        <div className="row" style={{ gap: 10 }}>
+        <Link to="/" className="row" style={{ gap: 10, textDecoration: "none" }}>
           <BrandMark />
           <h1>NotebookOS</h1>
-        </div>
+        </Link>
         <p className="tagline">
           Your business already has a database. It’s just handwritten. Photograph a notebook page or record a voice
           note — you check what the AI read, and only what you confirm becomes your business record.
