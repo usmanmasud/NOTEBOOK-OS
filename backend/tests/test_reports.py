@@ -11,6 +11,22 @@ def confirmed(client, auth):
     client.post(f"/api/uploads/{upload['id']}/confirm", headers=auth)
 
 
+def test_share_link_follows_allowed_origin(client, auth, monkeypatch):
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("CORS_ORIGINS", "https://notebookos.example.ng,https://app.example.vercel.app")
+    monkeypatch.setenv("PUBLIC_BASE_URL", "https://notebookos.example.ng")
+    get_settings.cache_clear()
+    confirmed(client, auth)
+    via_vercel = client.post("/api/reports", headers={**auth, "Origin": "https://app.example.vercel.app"}, json={"consent": True})
+    assert via_vercel.json()["share_url"].startswith("https://app.example.vercel.app/reports/")
+    via_custom = client.post("/api/reports", headers={**auth, "Origin": "https://notebookos.example.ng"}, json={"consent": True})
+    assert via_custom.json()["share_url"].startswith("https://notebookos.example.ng/reports/")
+    # Origins that are not allowed never shape the link.
+    evil = client.post("/api/reports", headers={**auth, "Origin": "https://evil.example"}, json={"consent": True})
+    assert evil.json()["share_url"].startswith("https://notebookos.example.ng/reports/")
+
+
 def test_report_requires_consent(client, auth):
     confirmed(client, auth)
     assert client.post("/api/reports", headers=auth, json={"consent": False}).status_code == 422

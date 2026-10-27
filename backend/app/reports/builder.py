@@ -194,8 +194,19 @@ def revoke_report(db: Session, report: Report) -> Report:
     return report
 
 
-def report_out(report: Report, include_token: bool = True) -> dict:
+def share_base_url(origin: str | None) -> str:
+    """Base for share links: the site the owner is using, if it is an allowed origin.
+
+    Lets several front-end domains (e.g. a custom domain and the Vercel address) each
+    produce links to themselves. Unknown origins fall back to PUBLIC_BASE_URL.
+    """
     s = get_settings()
+    if origin and origin.rstrip("/") in {o.rstrip("/") for o in s.cors_origin_list}:
+        return origin.rstrip("/")
+    return s.public_base_url.rstrip("/")
+
+
+def report_out(report: Report, include_token: bool = True, origin: str | None = None) -> dict:
     out = {
         "id": report.id,
         "title": report.title,
@@ -206,7 +217,7 @@ def report_out(report: Report, include_token: bool = True) -> dict:
     }
     if include_token:
         out["share_token"] = report.share_token
-        out["share_url"] = f"{s.public_base_url.rstrip('/')}/reports/{report.share_token}"
+        out["share_url"] = f"{share_base_url(origin)}/reports/{report.share_token}"
     return out
 
 

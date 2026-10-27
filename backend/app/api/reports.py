@@ -12,26 +12,30 @@ router = APIRouter(prefix="/reports", tags=["reports"])
 
 
 @router.post("", status_code=201)
-def create_report(body: ReportCreate, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+def create_report(
+    body: ReportCreate, request: Request, user: User = Depends(current_user), db: Session = Depends(get_db)
+) -> dict:
     try:
         report = builder.create_report(db, user, body.period_start, body.period_end, body.title, body.consent)
     except builder.ReportError as exc:
         raise HTTPException(422, str(exc))
-    return builder.report_out(report)
+    return builder.report_out(report, origin=request.headers.get("origin"))
 
 
 @router.get("")
-def list_reports(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
+def list_reports(request: Request, user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[dict]:
     reports = db.scalars(select(Report).where(Report.user_id == user.id).order_by(Report.generated_at.desc()))
-    return [builder.report_out(r) for r in reports]
+    return [builder.report_out(r, origin=request.headers.get("origin")) for r in reports]
 
 
 @router.post("/{report_id}/revoke")
-def revoke_report(report_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> dict:
+def revoke_report(
+    report_id: str, request: Request, user: User = Depends(current_user), db: Session = Depends(get_db)
+) -> dict:
     report = db.get(Report, report_id)
     if report is None or report.user_id != user.id:
         raise HTTPException(404, "Report not found.")
-    return builder.report_out(builder.revoke_report(db, report))
+    return builder.report_out(builder.revoke_report(db, report), origin=request.headers.get("origin"))
 
 
 @router.get("/{share_token}")
