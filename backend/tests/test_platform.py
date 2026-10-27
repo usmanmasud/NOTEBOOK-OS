@@ -38,6 +38,11 @@ def test_production_refuses_unsafe_config():
     assert len(problems) == 3
 
 
+def test_cors_origins_tolerate_spaces_and_trailing_slashes():
+    s = Settings(cors_origins=" https://a.example.ng/ , https://b.vercel.app,")
+    assert s.cors_origin_list == ["https://a.example.ng", "https://b.vercel.app"]
+
+
 def test_ephemeral_hosting_is_an_explicit_opt_in():
     base = dict(app_env="production", otp_dev_echo=False, database_url="sqlite:///x.db", redis_url="")
     assert len(Settings(**base).validate_for_production()) == 2

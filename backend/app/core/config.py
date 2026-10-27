@@ -123,7 +123,8 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        # Browsers send origins without a trailing slash; tolerate "https://x.com/" in config.
+        return [o.strip().rstrip("/") for o in self.cors_origins.split(",") if o.strip().rstrip("/")]
 
     @property
     def extraction_language_list(self) -> list[str]:
