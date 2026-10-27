@@ -124,7 +124,12 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         # Browsers send origins without a trailing slash; tolerate "https://x.com/" in config.
-        return [o.strip().rstrip("/") for o in self.cors_origins.split(",") if o.strip().rstrip("/")]
+        origins = [o.strip().rstrip("/") for o in self.cors_origins.split(",") if o.strip().rstrip("/")]
+        # The site share links point to is a frontend by definition, so it is always allowed.
+        public = self.public_base_url.strip().rstrip("/")
+        if public and public not in origins:
+            origins.append(public)
+        return origins
 
     @property
     def extraction_language_list(self) -> list[str]:

@@ -1,5 +1,7 @@
 """Health checks used by Docker, the ECS load balancer and the demo."""
 
+import os
+
 from fastapi import APIRouter
 from sqlalchemy import text
 
@@ -40,4 +42,10 @@ def dependencies() -> dict:
     checks["ai"] = provider_status()
 
     overall = all(c.get("ok", True) for c in (checks["database"], checks["cache"], checks["storage"]))
-    return {"status": "ok" if overall else "degraded", "checks": checks}
+    return {
+        "status": "ok" if overall else "degraded",
+        # Public, non-secret facts that help confirm what is deployed.
+        "version": os.environ.get("RENDER_GIT_COMMIT", os.environ.get("APP_VERSION", ""))[:7] or None,
+        "allowed_origins": settings.cors_origin_list,
+        "checks": checks,
+    }

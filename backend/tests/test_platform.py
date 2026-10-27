@@ -39,8 +39,13 @@ def test_production_refuses_unsafe_config():
 
 
 def test_cors_origins_tolerate_spaces_and_trailing_slashes():
-    s = Settings(cors_origins=" https://a.example.ng/ , https://b.vercel.app,")
+    s = Settings(cors_origins=" https://a.example.ng/ , https://b.vercel.app,", public_base_url="https://a.example.ng")
     assert s.cors_origin_list == ["https://a.example.ng", "https://b.vercel.app"]
+
+
+def test_public_base_url_is_always_an_allowed_origin():
+    s = Settings(cors_origins="https://b.vercel.app", public_base_url="https://custom.example.ng/")
+    assert s.cors_origin_list == ["https://b.vercel.app", "https://custom.example.ng"]
 
 
 def test_ephemeral_hosting_is_an_explicit_opt_in():
