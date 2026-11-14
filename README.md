@@ -6,10 +6,8 @@ NotebookOS turns a trader's handwritten notebook page or voice note into structu
 searchable business records. Every number on the dashboard can be traced back to the
 line in the notebook it came from, and nothing becomes official until the trader confirms it.
 
-Built for the Huawei ICT Competition, Innovation track (hackathon MVP).
-
-**Live demo:** https://notebook-os-xi.vercel.app. Choose *Open the demo account*.
-All data is fictional. The backend runs on a free tier: the first visit after a quiet
+**Live app:** https://notebook-os-xi.vercel.app. Choose *Explore a sample workspace* to try it with fictional data.
+The sample workspace holds fictional data only. The first visit after a quiet
 period can take about a minute to wake it up.
 
 ---
@@ -195,7 +193,7 @@ OBS, networking, HTTPS, migrations, and health checks.
 | Huawei OBS storage | Implemented via the S3-compatible API; **not yet tested against a live bucket** |
 | Live deployment | Running on Vercel (frontend) + Render (API). The full demo flow was verified in a browser against the live site. Data is not persistent yet. |
 | Deployment to Huawei Cloud | Configuration and runbook provided; **not yet deployed** |
-| Huawei ModelArts (required by the competition) | **Not integrated yet.** The LLM step already accepts an OpenAI-compatible endpoint such as ModelArts MaaS, but it has not been configured or tested. |
+| Huawei ModelArts | **Not integrated yet.** The LLM step already accepts an OpenAI-compatible endpoint such as ModelArts MaaS, but it has not been configured or tested. |
 | SMS delivery for OTP | **Not implemented.** The OTP architecture is in place, but production needs an SMS gateway plugged in (see docs/security.md). |
 | Hausa UI labels | Partial, and need review by a native speaker |
 

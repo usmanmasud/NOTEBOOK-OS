@@ -165,8 +165,8 @@ export function Capture() {
       {config.demo_mode && samples.length > 0 && (
         <section className="card stack">
           <div className="card-head" style={{ marginBottom: 0 }}>
-            <h2>Demo samples</h2>
-            <span className="tiny">Fictional · work offline</span>
+            <h2>Try a sample page</h2>
+            <span className="tiny">Fictional data · works offline</span>
           </div>
           <div className="sample-list">
             {samples.map((s) => (
@@ -188,18 +188,18 @@ export function Capture() {
 function DemoReset() {
   const [state, setState] = useState<string | null>(null);
   async function reset() {
-    if (!window.confirm("Reset the demo account? This removes everything in it and reloads the fictional history.")) return;
+    if (!window.confirm("Reset this sample workspace? This removes everything in it and reloads the sample history.")) return;
     setState("Resetting…");
     try {
       const r = await api.resetDemo(true);
-      setState(`Demo reset. ${r.history_records_confirmed} earlier records loaded.`);
+      setState(`Sample data reset. ${r.history_records_confirmed} earlier records loaded.`);
     } catch {
       setState("Reset failed.");
     }
   }
   return (
     <div className="row">
-      <button className="btn btn-sm btn-ghost" onClick={reset}>Reset demo data</button>
+      <button className="btn btn-sm btn-ghost" onClick={reset}>Reset sample data</button>
       {state && <span className="tiny">{state}</span>}
     </div>
   );

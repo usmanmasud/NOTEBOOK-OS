@@ -146,7 +146,7 @@ export function Review() {
           <span><Icon.check /> Understood ({p.interpreter === "rules" ? "rule-based" : p.interpreter})</span>
           <span><Icon.check /> Checked · {p.records_extracted ?? 0} found, {p.records_flagged ?? 0} flagged</span>
           <FixtureBadge show={p.read_is_demo_fixture} />
-          {p.seeded_demo_history && <span className="badge fixture">Seeded demo history</span>}
+          {p.seeded_demo_history && <span className="badge fixture">Sample history</span>}
           <span className="tiny">· {dateTime(upload.created_at)}</span>
         </div>
       )}

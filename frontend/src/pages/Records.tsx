@@ -41,7 +41,7 @@ export function Records() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <strong className="small">
                   {u.type === "PHOTO" ? "Notebook photo" : u.type === "VOICE" ? "Voice note" : "Typed entry"}
-                  {u.pipeline.seeded_demo_history ? " · seeded demo history" : ""}
+                  {u.pipeline.seeded_demo_history ? " · sample history" : ""}
                 </strong>
                 <div className="tiny">
                   {dateTime(u.created_at)} · {c.CONFIRMED} confirmed{pending ? ` · ${pending} to review` : ""}

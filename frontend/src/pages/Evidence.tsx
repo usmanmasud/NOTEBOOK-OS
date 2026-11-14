@@ -113,7 +113,7 @@ export function EvidenceItem({ record: r }: { record: BusinessRecord }) {
           <li className={r.status === "CONFIRMED" ? "ok" : ""}>
             <Icon.check />
             <span>
-              <strong>{r.status !== "CONFIRMED" ? "Not confirmed" : s.seeded_demo_history ? "Pre-confirmed demo history (loaded by the demo setup, not by a person)" : "Confirmed by trader"}</strong>
+              <strong>{r.status !== "CONFIRMED" ? "Not confirmed" : s.seeded_demo_history ? "Pre-confirmed sample history (loaded automatically, not by a person)" : "Confirmed by trader"}</strong>
               {r.confirmed_at && <span className="tiny"> · {dateTime(r.confirmed_at)}</span>}
             </span>
           </li>

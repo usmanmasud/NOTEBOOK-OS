@@ -2,7 +2,7 @@
 
 These do not run any model. They recognise the fictional sample files shipped in
 `samples/` (by SHA-256) and return the pre-recorded reading for that file, so the
-competition demo still works with no internet. Any other file is reported as
+demo still works with no internet. Any other file is reported as
 unavailable rather than guessed at. Results are labelled `is_fixture=True`.
 """
 

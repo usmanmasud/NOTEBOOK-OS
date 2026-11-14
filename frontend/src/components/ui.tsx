@@ -51,6 +51,16 @@ export const Icon = {
     <svg {...base(p)}><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>
   ),
   arrowLeft: (p: IconProps) => <svg {...base(p)}><path d="M15 6l-6 6 6 6" /></svg>,
+  arrowRight: (p: IconProps) => <svg {...base(p)}><path d="M5 12h14M13 6l6 6-6 6" /></svg>,
+  lock: (p: IconProps) => (
+    <svg {...base(p)}><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></svg>
+  ),
+  phone: (p: IconProps) => (
+    <svg {...base(p)}><rect x="7" y="2.5" width="10" height="19" rx="2.5" /><path d="M11 18h2" /></svg>
+  ),
+  globe: (p: IconProps) => (
+    <svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" /></svg>
+  ),
   user: (p: IconProps) => <svg {...base(p)}><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>,
   page: (p: IconProps) => (
     <svg {...base(p)}><rect x="5" y="3" width="14" height="18" rx="1.5" /><path d="M8 8h8M8 12h8M8 16h5" /></svg>
@@ -105,8 +115,8 @@ export function Loading({ label = "Loading…" }: { label?: string }) {
 export function FixtureBadge({ show }: { show?: boolean }) {
   if (!show) return null;
   return (
-    <span className="badge fixture" title="Read from a pre-recorded demo fixture, not a live OCR/speech model">
-      Demo reading (offline)
+    <span className="badge fixture" title="Read from a pre-recorded sample, not a live OCR/speech model">
+      Sample reading
     </span>
   );
 }

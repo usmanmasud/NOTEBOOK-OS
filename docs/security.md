@@ -1,6 +1,6 @@
 # Security and privacy
 
-This is a hackathon MVP with sensible baseline protections. **No regulatory compliance
+NotebookOS ships with sensible baseline protections. **No regulatory compliance
 (e.g. NDPA/GDPR) is claimed.**
 
 ## Authentication and sessions

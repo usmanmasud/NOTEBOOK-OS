@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { BrandMark } from "../components/Layout";
-import { Notice } from "../components/ui";
+import { Icon, Notice } from "../components/ui";
 import { useApp } from "../hooks/useApp";
 import { api, ApiError } from "../services/api";
 
@@ -50,58 +50,113 @@ export function SignIn() {
     });
 
   return (
-    <div className="main">
-      <div className="signin">
-        <Link to="/" className="row" style={{ gap: 10, textDecoration: "none" }}>
-          <BrandMark />
-          <h1>NotebookOS</h1>
+    <div className="auth">
+      <aside className="auth-side">
+        <Link to="/" className="brand auth-brand">
+          <BrandMark /> NotebookOS
         </Link>
-        <p className="tagline">
-          Your business already has a database. It’s just handwritten. Photograph a notebook page or record a voice
-          note — you check what the AI read, and only what you confirm becomes your business record.
-        </p>
-
-        <div className="card stack">
-          {step === "phone" ? (
-            <form className="stack" onSubmit={requestCode}>
-              <div className="field">
-                <label htmlFor="phone">Phone number</label>
-                <input id="phone" className="input" type="tel" inputMode="tel" autoComplete="tel"
-                  placeholder="+234 800 000 0000" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-              </div>
-              <button className="btn btn-primary btn-block" disabled={busy}>Send code</button>
-            </form>
-          ) : (
-            <form className="stack" onSubmit={verify}>
-              <div className="field">
-                <label htmlFor="code">Enter the 6-digit code sent to {phone}</label>
-                <input id="code" className="input" inputMode="numeric" autoComplete="one-time-code" maxLength={6}
-                  value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} required autoFocus />
-              </div>
-              {devCode && (
-                <Notice kind="warn">
-                  Development mode: no SMS is sent. Your code is <strong>{devCode}</strong>.
-                </Notice>
-              )}
-              <button className="btn btn-primary btn-block" disabled={busy || code.length < 6}>Sign in</button>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep("phone")}>Use a different number</button>
-            </form>
-          )}
-          {error && <Notice kind="error">{error}</Notice>}
+        <div className="auth-showcase" aria-hidden="true">
+          <p className="auth-line">Musa shinkafa 2? 20k bashi</p>
+          <span className="auth-arrow">
+            <Icon.arrowRight />
+          </span>
+          <div className="auth-rec">
+            <span>Musa · Credit · Rice</span>
+            <strong>₦20,000</strong>
+          </div>
         </div>
+        <ul className="auth-points">
+          <li>
+            <Icon.check /> Photograph a page or record a voice note
+          </li>
+          <li>
+            <Icon.check /> Check what was read, then confirm
+          </li>
+          <li>
+            <Icon.check /> Every figure traces back to your handwriting
+          </li>
+        </ul>
+      </aside>
 
-        {config.demo_mode && (
-          <>
-            <div className="divider">or</div>
-            <div className="card stack">
-              <button className="btn btn-block" onClick={demo} disabled={busy}>Open the demo account</button>
-              <p className="tiny">
-                The demo account contains fictional sample data only. No real people or businesses.
-              </p>
+      <main className="auth-main">
+        <div className="signin">
+          <Link to="/" className="brand auth-brand-mobile">
+            <BrandMark /> NotebookOS
+          </Link>
+          <div>
+            <h1>{step === "phone" ? "Sign in to NotebookOS" : "Check your phone"}</h1>
+            <p className="tagline">
+              {step === "phone"
+                ? "Enter your phone number and we’ll send you a one-time code. No password needed."
+                : `Enter the 6-digit code we sent to ${phone}.`}
+            </p>
+          </div>
+
+          <div className="card stack">
+            {step === "phone" ? (
+              <form className="stack" onSubmit={requestCode}>
+                <div className="field">
+                  <label htmlFor="phone">Phone number</label>
+                  <input
+                    id="phone"
+                    className="input"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    placeholder="+234 800 000 0000"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                </div>
+                <button className="btn btn-primary btn-block" disabled={busy}>
+                  {busy ? "Sending…" : "Continue"}
+                </button>
+              </form>
+            ) : (
+              <form className="stack" onSubmit={verify}>
+                <div className="field">
+                  <label htmlFor="code">Verification code</label>
+                  <input
+                    id="code"
+                    className="input otp-input"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    placeholder="••••••"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                    required
+                    autoFocus
+                  />
+                </div>
+                {devCode && (
+                  <Notice kind="warn">
+                    Development mode: no SMS is sent. Your code is <strong>{devCode}</strong>.
+                  </Notice>
+                )}
+                <button className="btn btn-primary btn-block" disabled={busy || code.length < 6}>
+                  {busy ? "Signing in…" : "Sign in"}
+                </button>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStep("phone")}>
+                  Use a different number
+                </button>
+              </form>
+            )}
+            {error && <Notice kind="error">{error}</Notice>}
+          </div>
+
+          {config.demo_mode && (
+            <div className="stack auth-demo">
+              <div className="divider">or</div>
+              <button className="btn btn-outline btn-block" onClick={demo} disabled={busy}>
+                Explore a sample workspace <Icon.arrowRight />
+              </button>
+              <p className="tiny">Pre-filled with sample records for a fictional trader. No sign-up needed.</p>
             </div>
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

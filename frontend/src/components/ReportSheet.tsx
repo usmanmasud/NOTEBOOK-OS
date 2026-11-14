@@ -71,7 +71,7 @@ export function ReportSheet({ title, generatedAt, s }: { title: string; generate
         <strong>Evidence.</strong> {s.evidence_statement} Sources: {s.sources.notebook_photos} notebook photo(s),{" "}
         {s.sources.voice_notes} voice note(s), {s.sources.typed_entries} typed entr{s.sources.typed_entries === 1 ? "y" : "ies"};{" "}
         {s.sources.records_corrected_by_trader} record(s) corrected and {s.sources.records_entered_manually} entered manually by the trader.
-        {s.sources.records_preloaded_demo_history ? ` ${s.sources.records_preloaded_demo_history} record(s) are pre-loaded fictional demo history.` : ""}
+        {s.sources.records_preloaded_demo_history ? ` ${s.sources.records_preloaded_demo_history} record(s) are pre-loaded fictional sample history.` : ""}
       </div>
       <div className="report-box">
         <strong>Important.</strong> This report is a summary of confirmed user-provided business records. {s.disclaimer}

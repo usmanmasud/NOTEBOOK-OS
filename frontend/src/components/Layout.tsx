@@ -37,9 +37,9 @@ export function Layout() {
         </nav>
         <div className="topbar-right">
           {user?.is_demo && (
-            <span className="demo-pill" title="Demo account with fictional data">
-              <span className="only-wide">Demo account · fictional data</span>
-              <span className="only-narrow">Demo · fictional</span>
+            <span className="demo-pill" title="Sample workspace with fictional data">
+              <span className="only-wide">Sample workspace</span>
+              <span className="only-narrow">Sample</span>
             </span>
           )}
           <label className="visually-hidden" htmlFor="lang">
