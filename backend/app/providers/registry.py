@@ -71,16 +71,23 @@ def llm_provider() -> LLMProvider | None:
 
 def _run_chain(providers: list, call: Callable, empty_msg: str) -> ReadResult:
     last: ProviderUnavailable | None = None
+    reasons: list[str] = []
     for provider in providers:
+        name = getattr(provider, "name", str(provider))
         try:
             return call(provider)
         except ProviderUnavailable as exc:
-            logger.warning("provider %s unavailable: %s", provider.name, exc.detail or exc.user_message)
+            logger.warning("provider %s unavailable: %s", name, exc.detail or exc.user_message)
             last = exc
+            reasons.append(f"{name}: {exc.detail or 'unavailable'}")
         except Exception:  # never let a provider bug take down processing
-            logger.exception("provider %s failed", getattr(provider, "name", provider))
+            logger.exception("provider %s failed", name)
             last = ProviderUnavailable(empty_msg, "provider error")
-    raise last or ProviderUnavailable(empty_msg, "no provider configured")
+            reasons.append(f"{name}: provider error")
+    if last is None:
+        raise ProviderUnavailable(empty_msg, "no provider configured")
+    # Keep every provider's reason (not just the last fallback's) for logs and diagnostics.
+    raise ProviderUnavailable(last.user_message, "; ".join(reasons))
 
 
 def read_image(data: bytes, mime_type: str) -> ReadResult:

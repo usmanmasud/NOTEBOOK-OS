@@ -174,7 +174,7 @@ def process_upload(upload_id: str) -> None:
             run_pipeline(db, upload)
         except ProviderUnavailable as exc:
             db.rollback()
-            _fail(db, upload_id, exc.user_message)
+            _fail(db, upload_id, exc.user_message, exc.detail)
             log_event("processing_failed", upload_id=upload_id, reason=exc.detail or "provider unavailable")
         except Exception:
             db.rollback()
@@ -185,12 +185,14 @@ def process_upload(upload_id: str) -> None:
         db.close()
 
 
-def _fail(db: Session, upload_id: str, message: str) -> None:
+def _fail(db: Session, upload_id: str, message: str, detail: str = "") -> None:
     upload = db.get(Upload, upload_id)
     if upload is None:
         return
     clear_extraction(db, upload)
     upload.status = UploadStatus.FAILED
     upload.error_message = message
+    if detail:  # provider reasons (status/error codes only, no secrets) for the owner's diagnostics
+        upload.pipeline_info = {**(upload.pipeline_info or {}), "read_errors": detail[:500]}
     upload.processed_at = utcnow()
     db.commit()
