@@ -25,6 +25,19 @@ from app.providers.base import (
 )
 
 
+def _huawei_error(resp: httpx.Response) -> str:
+    """Huawei's own error code/message for server logs (never contains request secrets)."""
+    try:
+        body = resp.json()
+    except Exception:
+        return ""
+    err = body.get("error") if isinstance(body.get("error"), dict) else body
+    code = err.get("code") or err.get("error_code") or ""
+    msg = err.get("message") or err.get("error_msg") or ""
+    text = f"{code} {msg}".strip()
+    return f": {text[:200]}" if text else ""
+
+
 class IAMTokenCache:
     """Fetches and caches a project-scoped IAM token (valid 24h; refreshed after 20h)."""
 
@@ -58,7 +71,9 @@ class IAMTokenCache:
             url = f"https://iam.{s.huawei_region}.myhuaweicloud.com/v3/auth/tokens"
             resp = httpx.post(url, json=body, timeout=15)
             if resp.status_code != 201 or "X-Subject-Token" not in resp.headers:
-                raise ProviderUnavailable(OCR_UNAVAILABLE_MSG, f"IAM token request failed ({resp.status_code})")
+                raise ProviderUnavailable(
+                    OCR_UNAVAILABLE_MSG, f"IAM token request failed ({resp.status_code}){_huawei_error(resp)}"
+                )
             self._token = resp.headers["X-Subject-Token"]
             self._expires = time.time() + 20 * 3600
             return self._token
@@ -102,7 +117,7 @@ class HuaweiOCRProvider:
         except httpx.HTTPError as exc:
             raise ProviderUnavailable(OCR_UNAVAILABLE_MSG, f"OCR request failed: {type(exc).__name__}") from exc
         if resp.status_code != 200:
-            raise ProviderUnavailable(OCR_UNAVAILABLE_MSG, f"OCR returned HTTP {resp.status_code}")
+            raise ProviderUnavailable(OCR_UNAVAILABLE_MSG, f"OCR returned HTTP {resp.status_code}{_huawei_error(resp)}")
         return parse_huawei_ocr(resp.json(), _image_size(data), self.name)
 
 
