@@ -188,7 +188,8 @@ OBS, networking, HTTPS, migrations, and health checks.
 | Upload → extraction → review → confirm → dashboard → evidence → report | Automated end-to-end test, and driven in a real browser (Edge, phone and desktop sizes) |
 | Rule-based extraction (English/Hausa/mixed) | Unit-tested on realistic fictional lines. It is a heuristic reader, and its accuracy on real notebooks has **not** been measured. |
 | Docker stack with MySQL 8.4 + Redis 7 | Verified locally: migrations apply to MySQL, demo seeds, `/api/health/dependencies` reports mysql/redis, and the full demo flow passes in a browser against the nginx production build |
-| Huawei Cloud OCR, SIS, IAM providers | Implemented against the documented APIs and tested with mocked responses only. **Not yet tested against live Huawei services.** |
+| Huawei Cloud OCR + IAM | **Live.** The deployed API reads new photos with Huawei OCR (General Text, CN-Hong Kong). A fresh handwritten-style page was read at 95–98% line confidence, with the offline demo reader as fallback. Accuracy on real notebooks has not been measured. |
+| Huawei SIS (speech) | Implemented against the documented API and tested with mocked responses only. Not yet tested live. |
 | OpenAI-compatible LLM provider | Tested with a mocked HTTP endpoint only |
 | Huawei OBS storage | Implemented via the S3-compatible API; **not yet tested against a live bucket** |
 | Live deployment | Running on Vercel (frontend) + Render (API). The full demo flow was verified in a browser against the live site. Data is not persistent yet. |
