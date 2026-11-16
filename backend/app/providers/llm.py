@@ -9,6 +9,7 @@ import httpx
 
 from app.core.config import get_settings
 from app.providers.base import LLM_UNAVAILABLE_MSG, ProviderUnavailable
+from app.providers.huawei import _huawei_error
 
 
 class OpenAICompatibleLLMProvider:
@@ -16,7 +17,8 @@ class OpenAICompatibleLLMProvider:
 
     def __init__(self, client: httpx.Client | None = None) -> None:
         s = get_settings()
-        self.base_url = s.llm_base_url.rstrip("/")
+        # Accept either the base (".../v1") or the full endpoint URL pasted from a console.
+        self.base_url = s.llm_base_url.strip().rstrip("/").removesuffix("/chat/completions")
         self.api_key = s.llm_api_key
         self.model = s.llm_model
         self.client = client or httpx.Client(timeout=s.llm_timeout_seconds)
@@ -38,7 +40,7 @@ class OpenAICompatibleLLMProvider:
         except httpx.HTTPError as exc:
             raise ProviderUnavailable(LLM_UNAVAILABLE_MSG, f"LLM request failed: {type(exc).__name__}") from exc
         if resp.status_code != 200:
-            raise ProviderUnavailable(LLM_UNAVAILABLE_MSG, f"LLM returned HTTP {resp.status_code}")
+            raise ProviderUnavailable(LLM_UNAVAILABLE_MSG, f"LLM returned HTTP {resp.status_code}{_huawei_error(resp)}")
         try:
             return resp.json()["choices"][0]["message"]["content"] or ""
         except (KeyError, IndexError, ValueError) as exc:
