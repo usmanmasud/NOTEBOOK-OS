@@ -190,11 +190,11 @@ OBS, networking, HTTPS, migrations, and health checks.
 | Docker stack with MySQL 8.4 + Redis 7 | Verified locally: migrations apply to MySQL, demo seeds, `/api/health/dependencies` reports mysql/redis, and the full demo flow passes in a browser against the nginx production build |
 | Huawei Cloud OCR + IAM | **Live.** The deployed API reads new photos with Huawei OCR (General Text, CN-Hong Kong). A fresh handwritten-style page was read at 95–98% line confidence, with the offline demo reader as fallback. Accuracy on real notebooks has not been measured. |
 | Huawei SIS (speech) | Implemented against the documented API and tested with mocked responses only. Not yet tested live. |
-| OpenAI-compatible LLM provider | Tested with a mocked HTTP endpoint only |
+| OpenAI-compatible LLM provider | Unit-tested with a mocked endpoint, and running live against ModelArts (above) |
 | Huawei OBS storage | Implemented via the S3-compatible API; **not yet tested against a live bucket** |
 | Live deployment | Running on Vercel (frontend) + Render (API). The full demo flow was verified in a browser against the live site. Data is not persistent yet. |
 | Deployment to Huawei Cloud | Configuration and runbook provided; **not yet deployed** |
-| Huawei ModelArts | **Not integrated yet.** The LLM step already accepts an OpenAI-compatible endpoint such as ModelArts MaaS, but it has not been configured or tested. |
+| Huawei ModelArts | **Live.** The deployed API interprets text with ModelArts MaaS (`deepseek-v4.1-flash-1017`, CN-Hong Kong, OpenAI-compatible `/v2` API). It was checked on live uploads: types, Hausa items and the written-total check came out right. If the LLM is unavailable, the app falls back to the rule-based interpreter. |
 | SMS delivery for OTP | **Not implemented.** The OTP architecture is in place, but production needs an SMS gateway plugged in (see docs/security.md). |
 | Hausa UI labels | Partial, and need review by a native speaker |
 
