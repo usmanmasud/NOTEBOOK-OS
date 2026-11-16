@@ -20,6 +20,7 @@ const FALLBACK_CONFIG: AppConfig = {
   locale: "en-NG",
   languages: ["en"],
   demo_mode: false,
+  login_methods: [],
   confidence: { high: 0.85, review: 0.6 },
   providers: { ocr: [], speech: [], llm: "rules" },
   limits: { photo_mb: 10, voice_mb: 15 },

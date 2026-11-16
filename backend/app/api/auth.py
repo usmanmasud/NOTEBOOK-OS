@@ -15,6 +15,7 @@ def user_out(user: User) -> dict:
     return {
         "id": user.id,
         "phone": service.mask_phone(user.phone),
+        "email": service.mask_email(user.email),
         "name": user.name,
         "business_name": user.business_name,
         "is_demo": user.is_demo,
@@ -25,8 +26,7 @@ def user_out(user: User) -> dict:
 def request_otp(body: OtpRequest, request: Request) -> dict:
     rate_limit("otp-ip", 20, 3600, client_ip(request))
     try:
-        phone = service.normalize_phone(body.phone)
-        result = service.request_otp(phone)
+        result = service.request_otp(service.identity_from(body.phone, body.email))
     except service.AuthError as exc:
         raise HTTPException(exc.status_code, exc.message)
     out = {"sent": True, "expires_in": result.expires_in}
@@ -39,8 +39,7 @@ def request_otp(body: OtpRequest, request: Request) -> dict:
 def verify_otp(body: OtpVerify, request: Request, db: Session = Depends(get_db)) -> dict:
     rate_limit("verify-ip", 30, 3600, client_ip(request))
     try:
-        phone = service.normalize_phone(body.phone)
-        user = service.verify_otp(db, phone, body.code)
+        user = service.verify_otp(db, service.identity_from(body.phone, body.email), body.code)
     except service.AuthError as exc:
         raise HTTPException(exc.status_code, exc.message)
     return {"token": service.create_session(user.id), "user": user_out(user)}

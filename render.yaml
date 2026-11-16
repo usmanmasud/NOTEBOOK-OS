@@ -26,6 +26,13 @@ services:
         value: "true"
       - key: OTP_DEV_ECHO
         value: "false"
+      # Email sign-in codes (Resend). Add RESEND_API_KEY and EMAIL_FROM in the dashboard.
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
       - key: OCR_PROVIDER
         value: demo
       - key: SPEECH_PROVIDER

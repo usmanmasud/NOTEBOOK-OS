@@ -78,3 +78,71 @@ def test_demo_login_disabled_outside_demo_mode(client, monkeypatch):
     monkeypatch.setenv("DEMO_MODE", "false")
     get_settings.cache_clear()
     assert client.post("/api/auth/demo").status_code == 404
+
+
+def test_email_otp_flow(client):
+    r = client.post("/api/auth/request-otp", json={"email": "  Trader@Example.COM "})
+    assert r.status_code == 200, r.text
+    code = r.json()["dev_code"]
+    r = client.post("/api/auth/verify-otp", json={"email": "trader@example.com", "code": code})
+    assert r.status_code == 200, r.text
+    user = r.json()["user"]
+    assert user["email"] == "tr****@example.com" and user["phone"] is None
+    # Same email signs in to the same account.
+    code = client.post("/api/auth/request-otp", json={"email": "trader@example.com"}).json()["dev_code"]
+    again = client.post("/api/auth/verify-otp", json={"email": "trader@example.com", "code": code}).json()["user"]
+    assert again["id"] == user["id"]
+
+
+def test_email_and_phone_codes_are_separate(client):
+    client.post("/api/auth/request-otp", json={"email": "a@example.com"})
+    code = client.post("/api/auth/request-otp", json={"phone": "+2348000000010"}).json()["dev_code"]
+    r = client.post("/api/auth/verify-otp", json={"email": "a@example.com", "code": code})
+    assert r.status_code == 400  # a phone code never unlocks an email account
+
+
+def test_identifier_validation(client):
+    assert client.post("/api/auth/request-otp", json={"email": "not-an-email"}).status_code == 422
+    assert client.post("/api/auth/request-otp", json={}).status_code == 422
+    both = {"email": "a@example.com", "phone": "+2348000000011"}
+    assert client.post("/api/auth/request-otp", json=both).status_code == 422
+
+
+def test_production_methods_and_email_delivery(client, monkeypatch):
+    from app.auth import delivery
+
+    sent = []
+    monkeypatch.setattr(delivery.httpx, "post", lambda url, json, headers, timeout: sent.append(json) or _Resp(200))
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("OTP_DEV_ECHO", "false")
+    get_settings.cache_clear()
+    try:
+        assert client.get("/api/config").json()["login_methods"] == []
+        assert client.post("/api/auth/request-otp", json={"phone": "+2348000000012"}).status_code == 400
+        monkeypatch.setenv("EMAIL_PROVIDER", "resend")
+        monkeypatch.setenv("RESEND_API_KEY", "re_test")
+        monkeypatch.setenv("EMAIL_FROM", "NotebookOS <login@example.com>")
+        get_settings.cache_clear()
+        assert client.get("/api/config").json()["login_methods"] == ["email"]
+        r = client.post("/api/auth/request-otp", json={"email": "owner@example.com"})
+        assert r.status_code == 200 and "dev_code" not in r.json()
+        assert sent and sent[0]["to"] == ["owner@example.com"] and sent[0]["subject"][:6].isdigit()
+        # Provider failure is a clean 503 with no provider details.
+        monkeypatch.setattr(delivery.httpx, "post", lambda *a, **k: _Resp(422, {"message": "domain not verified"}))
+        r = client.post("/api/auth/request-otp", json={"email": "owner2@example.com"})
+        assert r.status_code == 503 and "domain" not in r.text
+    finally:
+        for k in ("EMAIL_PROVIDER", "RESEND_API_KEY", "EMAIL_FROM"):
+            monkeypatch.delenv(k, raising=False)
+        monkeypatch.setenv("APP_ENV", "test")
+        monkeypatch.setenv("OTP_DEV_ECHO", "true")
+        get_settings.cache_clear()
+
+
+class _Resp:
+    def __init__(self, status: int, body: dict | None = None) -> None:
+        self.status_code = status
+        self._body = body or {"id": "x"}
+
+    def json(self) -> dict:
+        return self._body

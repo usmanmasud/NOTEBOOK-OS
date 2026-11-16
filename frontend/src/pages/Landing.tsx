@@ -64,7 +64,7 @@ const SECURITY = [
   {
     icon: Icon.phone,
     title: "No passwords to lose",
-    body: "Sign in with your phone number and a one-time code. Codes expire in minutes and are never stored in readable form.",
+    body: "Sign in with your email and a one-time code. Codes expire in minutes and are never stored in readable form.",
   },
   {
     icon: Icon.link,
@@ -76,7 +76,7 @@ const SECURITY = [
 const FAQ = [
   {
     q: "Do I need to install an app?",
-    a: "No. NotebookOS runs in the browser on any phone, tablet or computer. Open the site, sign in with your phone number, and start capturing.",
+    a: "No. NotebookOS runs in the browser on any phone, tablet or computer. Open the site, sign in with your email, and start capturing.",
   },
   {
     q: "Which languages does it understand?",
@@ -452,7 +452,7 @@ export function Landing() {
         <section className="lp-wrap lp-final-wrap">
           <div className="lp-final">
             <h2>Turn today’s page into tomorrow’s answers.</h2>
-            <p>Sign in with your phone number and capture your first notebook page in under a minute.</p>
+            <p>Sign in with your email and capture your first notebook page in under a minute.</p>
             <div className="row lp-cta-center">
               <Link to="/signin" className="btn btn-lg lp-btn-light">
                 Get started free <Icon.arrowRight />

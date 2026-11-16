@@ -100,13 +100,16 @@ function qs(params: Record<string, string | null | undefined>) {
   return entries.length ? `?${new URLSearchParams(entries)}` : "";
 }
 
+/** Exactly one identifier: an email address or a phone number. */
+export type SignInId = { email: string } | { phone: string };
+
 export const api = {
   config: () => request<AppConfig>("/config", {}, false),
 
-  requestOtp: (phone: string) =>
-    request<{ sent: boolean; expires_in: number; dev_code?: string }>("/auth/request-otp", json({ phone }), false),
-  verifyOtp: (phone: string, code: string) =>
-    request<{ token: string; user: User }>("/auth/verify-otp", json({ phone, code }), false),
+  requestOtp: (who: SignInId) =>
+    request<{ sent: boolean; expires_in: number; dev_code?: string }>("/auth/request-otp", json(who), false),
+  verifyOtp: (who: SignInId, code: string) =>
+    request<{ token: string; user: User }>("/auth/verify-otp", json({ ...who, code }), false),
   demoLogin: () => request<{ token: string; user: User }>("/auth/demo", { method: "POST" }, false),
   me: () => request<User>("/auth/me"),
   updateMe: (body: { name?: string; business_name?: string }) =>

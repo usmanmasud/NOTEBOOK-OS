@@ -4,7 +4,7 @@ import datetime as dt
 from decimal import Decimal
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.extraction.normalize import parse_amount
 
@@ -12,11 +12,19 @@ RecordTypeLiteral = Literal["SALE", "DEBT", "EXPENSE", "RESTOCK", "PAYMENT", "OT
 
 
 class OtpRequest(BaseModel):
-    phone: str = Field(min_length=7, max_length=20)
+    """Exactly one of `phone` or `email`."""
+
+    phone: str | None = Field(default=None, min_length=7, max_length=20)
+    email: str | None = Field(default=None, min_length=3, max_length=254)
+
+    @model_validator(mode="after")
+    def _one_identifier(self):
+        if bool(self.phone) == bool(self.email):
+            raise ValueError("Provide either a phone number or an email address.")
+        return self
 
 
-class OtpVerify(BaseModel):
-    phone: str = Field(min_length=7, max_length=20)
+class OtpVerify(OtpRequest):
     code: str = Field(min_length=4, max_length=8)
 
 

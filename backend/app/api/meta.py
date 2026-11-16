@@ -27,6 +27,7 @@ def client_config() -> dict:
         "timezone": s.timezone,
         "languages": s.extraction_language_list,
         "demo_mode": s.demo_mode,
+        "login_methods": s.login_methods,
         "confidence": {"high": s.confidence_high, "review": s.confidence_review},
         "providers": provider_status(),
         "limits": {"photo_mb": s.max_photo_bytes // (1024 * 1024), "voice_mb": s.max_voice_bytes // (1024 * 1024)},

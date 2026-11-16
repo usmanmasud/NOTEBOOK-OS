@@ -85,7 +85,9 @@ class User(TimestampMixin, Base):
     __tablename__ = "users"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    phone: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
+    # A user signs in with a phone number or an email address (at least one is set).
+    phone: Mapped[str | None] = mapped_column(String(32), unique=True)
+    email: Mapped[str | None] = mapped_column(String(254), unique=True)
     name: Mapped[str | None] = mapped_column(String(120))
     business_name: Mapped[str | None] = mapped_column(String(160))
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

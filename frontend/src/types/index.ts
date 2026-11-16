@@ -6,7 +6,8 @@ export type ConfidenceLevel = "high" | "review" | "low";
 
 export interface User {
   id: string;
-  phone: string;
+  phone: string | null;
+  email: string | null;
   name: string | null;
   business_name: string | null;
   is_demo: boolean;
@@ -224,12 +225,15 @@ export interface Sample {
   mime_type: string;
 }
 
+export type LoginMethod = "email" | "phone";
+
 export interface AppConfig {
   app_name: string;
   currency: string;
   locale: string;
   languages: string[];
   demo_mode: boolean;
+  login_methods: LoginMethod[];
   confidence: { high: number; review: number };
   providers: { ocr: string[]; speech: string[]; llm: string };
   limits: { photo_mb: number; voice_mb: number };

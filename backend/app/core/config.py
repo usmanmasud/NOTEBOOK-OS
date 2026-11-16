@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     # an SMS. Refused in production (see `validate_for_production`).
     otp_dev_echo: bool = False
     sms_provider: Literal["console", "none"] = "none"
+    # Email codes: "resend" sends real email (RESEND_API_KEY + EMAIL_FROM on a
+    # verified domain); "console" is development only; "none" disables email sign-in.
+    email_provider: Literal["resend", "console", "none"] = "none"
+    resend_api_key: str = ""
+    email_from: str = ""
 
     # Allow SQLite + in-process sessions in production: only for a single-instance
     # demo host whose data may reset (e.g. a free Render service). Never for real users.
@@ -144,6 +149,18 @@ class Settings(BaseSettings):
         return [p.strip() for p in self.speech_provider.split(",") if p.strip()]
 
     @property
+    def login_methods(self) -> list[str]:
+        """Sign-in methods that can actually deliver a code in this environment."""
+        dev = not self.is_production
+        methods = []
+        if self.email_provider == "resend" or (dev and (self.email_provider == "console" or self.otp_dev_echo)):
+            methods.append("email")
+        # No SMS gateway is integrated yet, so phone codes only work in development.
+        if dev and (self.sms_provider == "console" or self.otp_dev_echo):
+            methods.append("phone")
+        return methods
+
+    @property
     def is_production(self) -> bool:
         return self.app_env == "production"
 
@@ -157,6 +174,8 @@ class Settings(BaseSettings):
                 problems.append("DATABASE_URL must point at RDS MySQL in production")
             if not self.redis_url:
                 problems.append("REDIS_URL must be set in production (Huawei DCS)")
+        if self.email_provider == "resend" and not (self.resend_api_key and self.email_from):
+            problems.append("RESEND_API_KEY and EMAIL_FROM are required when EMAIL_PROVIDER=resend")
         if self.storage_backend == "obs" and not (self.obs_bucket and self.obs_endpoint):
             problems.append("OBS_BUCKET and OBS_ENDPOINT are required when STORAGE_BACKEND=obs")
         return problems

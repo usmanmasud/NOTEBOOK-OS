@@ -195,7 +195,7 @@ OBS, networking, HTTPS, migrations, and health checks.
 | Live deployment | Running on Vercel (frontend) + Render (API). The full demo flow was verified in a browser against the live site. Data is not persistent yet. |
 | Deployment to Huawei Cloud | Configuration and runbook provided; **not yet deployed** |
 | Huawei ModelArts | **Live.** The deployed API interprets text with ModelArts MaaS (`deepseek-v4.1-flash-1017`, CN-Hong Kong, OpenAI-compatible `/v2` API). It was checked on live uploads: types, Hausa items and the written-total check came out right. If the LLM is unavailable, the app falls back to the rule-based interpreter. |
-| SMS delivery for OTP | **Not implemented.** The OTP architecture is in place, but production needs an SMS gateway plugged in (see docs/security.md). |
+| Sign-in codes | **Email** codes are sent through Resend (`EMAIL_PROVIDER=resend`). SMS is **not implemented**, so phone sign-in only works in development (see docs/security.md). |
 | Hausa UI labels | Partial, and need review by a native speaker |
 
 ## License

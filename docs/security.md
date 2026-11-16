@@ -5,13 +5,17 @@ NotebookOS ships with sensible baseline protections. **No regulatory compliance
 
 ## Authentication and sessions
 
-* Phone + one-time code. Codes are random 6-digit values (`secrets`), stored only as
-  **salted SHA-256 hashes** in Redis. They expire after 5 minutes, are single use, allow
-  5 attempts, and are limited to 5 requests per phone per hour and 20 per IP per hour.
-* **SMS delivery is not implemented.** In development the code can be echoed in the API
-  response (`OTP_DEV_ECHO=true`), and production refuses to start with that setting. A
-  real deployment must plug an SMS gateway (for example Huawei Cloud Message & SMS) into
-  `app/auth/service.py::request_otp`.
+* Email (or, in development, phone) + one-time code. Codes are random 6-digit values
+  (`secrets`), stored only as **salted SHA-256 hashes** in Redis. They expire after 5
+  minutes, are single use, allow 5 attempts, and are limited to 5 requests per address
+  per hour and 20 per IP per hour.
+* **Email delivery** uses Resend's HTTP API (`EMAIL_PROVIDER=resend`) from a sender on a
+  verified domain. If sending fails, the stored code is discarded and the user sees a
+  generic "try again" message. Codes are never logged, and addresses are masked in logs.
+* **SMS delivery is not implemented**, so phone sign-in is offered only in development.
+  `/api/config` lists the sign-in methods that can actually deliver a code, and the sign-in
+  screen shows only those. In development the code can be echoed in the API response
+  (`OTP_DEV_ECHO=true`), and production refuses to start with that setting.
 * Sessions are 256-bit random bearer tokens. Only their SHA-256 hash is stored in
   Redis, with a 12-hour TTL by default. Logout deletes the session.
 * The demo account is available only when `DEMO_MODE=true` and contains fictional data
@@ -82,7 +86,7 @@ documented next step.
 
 ## Known gaps
 
-* No SMS gateway (see above).
+* No SMS gateway (see above). Email is the production sign-in method.
 * There is no CSRF exposure, because auth uses a bearer header rather than cookies. The
   session token is kept in `localStorage`, so an XSS bug would expose it. React escaping
   and a strict nginx header set reduce that risk, and a Content-Security-Policy is a
