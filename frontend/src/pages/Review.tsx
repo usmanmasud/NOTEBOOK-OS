@@ -25,6 +25,7 @@ export function Review() {
   useEffect(() => {
     let stop = false;
     let timer: ReturnType<typeof setTimeout>;
+    let failures = 0;
     async function tick() {
       try {
         const u = await api.upload(id);
@@ -41,7 +42,14 @@ export function Review() {
           setUpload(u);
         }
       } catch (e) {
-        if (!stop) setError(e instanceof ApiError ? e.message : "Could not load this upload.");
+        if (stop) return;
+        // Keep polling through brief network drops or server hiccups (about a minute).
+        const transient = !(e instanceof ApiError) || e.status === 0 || e.status >= 500;
+        if (transient && ++failures <= 8) {
+          timer = setTimeout(tick, 2000 * failures);
+          return;
+        }
+        setError(e instanceof ApiError ? e.message : "Could not load this upload.");
       }
     }
     tick();

@@ -57,17 +57,26 @@ export function onUnauthorized(fn: Listener) {
   };
 }
 
+const READ_TIMEOUT_MS = 25000;
+
 async function request<T>(path: string, init: RequestInit = {}, auth = true): Promise<T> {
   const headers = new Headers(init.headers);
   const token = session.get();
   if (auth && token) headers.set("Authorization", `Bearer ${token}`);
   if (init.body && !(init.body instanceof FormData)) headers.set("Content-Type", "application/json");
 
+  // Reads get a time limit so a stalled connection fails (and can be retried) instead of
+  // hanging forever. Uploads and other writes are left unbounded.
+  const isRead = !init.method || init.method === "GET";
+  const controller = isRead && !init.signal ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), READ_TIMEOUT_MS) : undefined;
   let response: Response;
   try {
-    response = await fetch(`${API}${path}`, { ...init, headers });
+    response = await fetch(`${API}${path}`, { ...init, headers, signal: controller?.signal ?? init.signal });
   } catch {
     throw new ApiError(0, "Can't reach NotebookOS. Check your connection and try again.");
+  } finally {
+    clearTimeout(timer);
   }
   if (response.status === 401 && auth) {
     session.set(null);

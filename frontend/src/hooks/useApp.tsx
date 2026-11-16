@@ -34,7 +34,8 @@ async function withRetry<T>(fn: () => Promise<T>, cancelled: () => boolean, dela
     try {
       return await fn();
     } catch (e) {
-      const retriable = !(e instanceof ApiError) || e.status >= 500;
+      // status 0 = network failure or timeout; 5xx = server trouble. Both are worth retrying.
+      const retriable = !(e instanceof ApiError) || e.status === 0 || e.status >= 500;
       if (!retriable || attempt >= delays.length || cancelled()) throw e;
       await new Promise((r) => setTimeout(r, delays[attempt]));
     }
