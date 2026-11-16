@@ -13,8 +13,10 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
-from app.extraction.normalize import parse_amount, parse_iso_date
+from app.core.config import get_settings
+from app.extraction.normalize import money_values_in, parse_amount, parse_iso_date
 from app.extraction.types import Candidate, Interpretation, SourceLine, WrittenTotal
+from app.extraction.vocab import load_vocab
 from app.providers.base import LLMProvider
 
 RecordTypeLiteral = Literal["SALE", "DEBT", "EXPENSE", "RESTOCK", "PAYMENT", "OTHER"]
@@ -70,7 +72,10 @@ Rules:
 goes in "totals", not "records".
 - type is one of SALE, DEBT (someone took goods/money on credit and owes the trader), \
 EXPENSE, RESTOCK (trader bought stock), PAYMENT (someone repaid what they owed), OTHER.
-- amount is a plain number in the local currency ("20k" = 20000, "dubu 15" = 15000).
+- amount is a plain number in the local currency ("20k" = 20000, "dubu 15" = 15000). A comma or \
+dot before exactly three digits is a thousands separator ("18.000" = 18000, "2,500" = 2500).
+- Read each line on its own: a record's item, quantity, amount and person must all come from the \
+line its line_id points to, never from a neighbouring line.
 - date is ISO YYYY-MM-DD only if a date is written on that line or in a heading above it; else null.
 - confidence and field_confidence are between 0 and 1 and reflect how clearly the value is written.
 
@@ -78,10 +83,11 @@ Vocabulary hints (not exhaustive; interpret by meaning): bashi = debt/credit, bi
 sayar = sell, kashe = spend, kaya = goods/stock, sayo kaya = bought stock, kudin mota = transport, \
 haya = rent, dubu = thousand, buhu = bag, jimla = total.
 
-Respond with JSON only, in exactly this shape:
-{"records":[{"line_id":"p1:L0","date":null,"type":"SALE","item":"Rice","quantity":2,"amount":30000,\
-"person":null,"confidence":0.9,"field_confidence":{"type":0.95,"amount":0.9,"item":0.9,"quantity":0.9}}],\
-"totals":[{"line_id":"p1:L5","amount":45000}]}
+Respond with JSON only, in exactly this shape (placeholders shown in angle brackets):
+{"records":[{"line_id":"<id>","date":"<YYYY-MM-DD or null>","type":"<TYPE>","item":"<item or null>",\
+"quantity":<number or null>,"amount":<number or null>,"person":"<name or null>","confidence":<0-1>,\
+"field_confidence":{"type":<0-1>,"amount":<0-1>,"item":<0-1>,"quantity":<0-1>}}],\
+"totals":[{"line_id":"<id>","amount":<number>}]}
 
 Examples:
 "Musa shinkafa 2? 20k bashi" -> type DEBT, person "Musa", item "Rice", quantity null (unclear), amount 20000.
@@ -123,7 +129,21 @@ class LLMInterpreter:
         self.name = provider.name
 
     def interpret(self, lines: list[SourceLine], reference: date, date_order: str = "DMY") -> Interpretation:
-        raw = self.provider.complete_json(SYSTEM_PROMPT, build_user_prompt(lines, reference, date_order))
+        prompt = build_user_prompt(lines, reference, date_order)
+        result = self._attempt(prompt, lines)
+        if implausibility(result, lines) > 0:
+            # Models occasionally shift values between lines or skip one. Ask once more and
+            # keep whichever answer agrees better with the page (validation still flags the rest).
+            try:
+                second = self._attempt(prompt, lines)
+            except Exception:
+                return result
+            if implausibility(second, lines) < implausibility(result, lines):
+                return second
+        return result
+
+    def _attempt(self, prompt: str, lines: list[SourceLine]) -> Interpretation:
+        raw = self.provider.complete_json(SYSTEM_PROMPT, prompt)
         output = parse_llm_output(raw)
         by_id = {ln.line_id: ln for ln in lines}
 
@@ -164,3 +184,23 @@ class LLMInterpreter:
             if line is not None and amount is not None:
                 totals.append(WrittenTotal(line=line, amount=amount))
         return Interpretation(candidates=candidates, totals=totals, interpreter=self.name)
+
+
+def implausibility(result: Interpretation, lines: list[SourceLine]) -> int:
+    """How strongly an interpretation disagrees with the source text (0 = consistent).
+
+    Counts records whose amount is not written on their own line (only when two or more
+    do, since a single one is usually a genuine misread that validation flags), plus lines
+    that clearly hold an amount but produced neither a record nor a written total.
+    """
+    vocab = load_vocab(tuple(get_settings().extraction_language_list))
+
+    def money(text: str) -> set:
+        return money_values_in(text, vocab.units, vocab.thousand_words)
+
+    mismatched = sum(
+        1 for c in result.candidates if c.fields.get("amount") is not None and c.fields["amount"] not in money(c.line.text)
+    )
+    used = {c.line.line_id for c in result.candidates} | {t.line.line_id for t in result.totals}
+    missed = sum(1 for ln in lines if ln.line_id not in used and money(ln.text))
+    return (mismatched if mismatched >= 2 else 0) + missed

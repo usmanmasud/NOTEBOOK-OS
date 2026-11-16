@@ -180,3 +180,44 @@ def test_llm_used_when_valid():
     registry.override("llm", [FakeLLM({"records": [{"line_id": "p2:L0", "type": "SALE", "amount": 45000, "confidence": 0.9}]})])
     result = interpret(lines("Sold 3 bags rice 45,000"), REF)
     assert result.interpreter == "fake-llm" and result.fallback_reason is None
+
+
+class SequenceLLM(FakeLLM):
+    """Returns a different answer on each call."""
+
+    def __init__(self, *outputs):
+        super().__init__(None)
+        self.outputs = list(outputs)
+
+    def complete_json(self, system, user):
+        self.calls += 1
+        return json.dumps(self.outputs[min(self.calls, len(self.outputs)) - 1])
+
+
+def _rec(line_id, amount, **kw):
+    return {"line_id": line_id, "type": "SALE", "amount": amount, "confidence": 0.9, **kw}
+
+
+PAGE = ("Sold 3 bags rice 45,000", "Sold 2 tins oil 18.000", "Kudin mota 2,500")
+GOOD = {"records": [_rec("p2:L0", 45000), _rec("p2:L1", 18000), _rec("p2:L2", 2500, type="EXPENSE")]}
+# Values shifted onto the wrong lines and the last line skipped.
+SHIFTED = {"records": [_rec("p2:L0", 18), _rec("p2:L1", 45000)]}
+
+
+def test_llm_consistent_answer_is_used_without_retry():
+    llm = SequenceLLM(GOOD)
+    result = LLMInterpreter(llm).interpret(lines(*PAGE), REF)
+    assert llm.calls == 1 and len(result.candidates) == 3
+
+
+def test_llm_retries_once_when_answer_contradicts_the_page():
+    llm = SequenceLLM(SHIFTED, GOOD)
+    result = LLMInterpreter(llm).interpret(lines(*PAGE), REF)
+    assert llm.calls == 2
+    assert [int(c.fields["amount"]) for c in result.candidates] == [45000, 18000, 2500]
+
+
+def test_llm_keeps_first_answer_if_retry_is_no_better():
+    llm = SequenceLLM(SHIFTED, SHIFTED, GOOD)
+    result = LLMInterpreter(llm).interpret(lines(*PAGE), REF)
+    assert llm.calls == 2 and len(result.candidates) == 2  # validation will flag these for review

@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { BrandMark } from "../components/Layout";
-import { Icon, Notice } from "../components/ui";
+import { Icon, Loading, Notice } from "../components/ui";
 import { useApp } from "../hooks/useApp";
 import { api, ApiError, type SignInId } from "../services/api";
 import type { LoginMethod } from "../types";
 
 export function SignIn() {
-  const { signIn, config } = useApp();
+  const { signIn, config, configLoaded } = useApp();
   const methods = config.login_methods;
   const [chosen, setChosen] = useState<LoginMethod | null>(null);
   const method: LoginMethod | undefined = chosen && methods.includes(chosen) ? chosen : methods[0];
@@ -102,7 +102,9 @@ export function SignIn() {
           </div>
 
           <div className="card stack">
-            {!method ? (
+            {!configLoaded ? (
+              <Loading label="Connecting…" />
+            ) : !method ? (
               <Notice kind="info">
                 Sign-in with a code isn’t available on this server yet. You can still explore the sample workspace below.
               </Notice>

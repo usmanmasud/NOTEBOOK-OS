@@ -1,11 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { api, onUnauthorized, session } from "../services/api";
+import { api, ApiError, onUnauthorized, session } from "../services/api";
 import type { AppConfig, User } from "../types";
 import { configureFormatting } from "../utils/format";
 
 interface AppState {
   user: User | null;
   config: AppConfig | null;
+  /** False until /api/config has answered (or every retry has failed). */
+  configLoaded: boolean;
   ready: boolean;
   signIn: (token: string, user: User) => void;
   signOut: () => Promise<void>;
@@ -26,28 +28,49 @@ const FALLBACK_CONFIG: AppConfig = {
   limits: { photo_mb: 10, voice_mb: 15 },
 };
 
+/** Retry network failures and 5xx responses (up to ~30 s); client errors fail at once. */
+async function withRetry<T>(fn: () => Promise<T>, cancelled: () => boolean, delays = [1000, 2000, 4000, 8000, 15000]): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const retriable = !(e instanceof ApiError) || e.status >= 500;
+      if (!retriable || attempt >= delays.length || cancelled()) throw e;
+      await new Promise((r) => setTimeout(r, delays[attempt]));
+    }
+  }
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    api
-      .config()
+    let cancelled = false;
+    // A cold server or a brief network drop must not leave the app without its settings
+    // (no sign-in options) or sign the user out, so retry before giving up.
+    withRetry(() => api.config(), () => cancelled)
       .then((c) => {
+        if (cancelled) return;
         setConfig(c);
         configureFormatting(c);
       })
-      .catch(() => setConfig(FALLBACK_CONFIG));
+      .catch(() => !cancelled && setConfig(FALLBACK_CONFIG));
     if (!session.get()) {
       setReady(true);
       return;
     }
-    api
-      .me()
-      .then(setUser)
-      .catch(() => session.set(null))
-      .finally(() => setReady(true));
+    withRetry(() => api.me(), () => cancelled)
+      .then((u) => !cancelled && setUser(u))
+      .catch((e) => {
+        // Only a rejected session signs the user out; a network failure keeps it for next time.
+        if (e instanceof ApiError && e.status === 401) session.set(null);
+      })
+      .finally(() => !cancelled && setReady(true));
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => onUnauthorized(() => setUser(null)), []);
@@ -68,7 +91,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Ctx.Provider value={{ user, config: config ?? FALLBACK_CONFIG, ready, signIn, signOut, setUser }}>
+    <Ctx.Provider value={{ user, config: config ?? FALLBACK_CONFIG, configLoaded: config !== null, ready, signIn, signOut, setUser }}>
       {children}
     </Ctx.Provider>
   );
